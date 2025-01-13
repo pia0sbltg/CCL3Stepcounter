@@ -12,6 +12,8 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -25,10 +27,9 @@ enum class Routes(val route: String) {
 }
 
 @Composable
-fun AppNavigation(stepsDao: StepsDao,goalsDao: GoalsDao, modifier: Modifier){
-    val navController = rememberNavController()
+fun AppNavigation(stepsDao: StepsDao,goalsDao: GoalsDao, navController: NavHostController, modifier: Modifier){
     val context = LocalContext.current
-    NavHost(navController, startDestination = Routes.Main.name) {
+    NavHost(navController =navController, startDestination = Routes.Main.name) {
         composable(Routes.Main.name){
             StepScreen(StepsViewModel(stepsDao = stepsDao, context = context ))
         }
@@ -48,8 +49,6 @@ fun StepScreen ( viewModel: StepsViewModel) {
         verticalArrangement = Arrangement.Center
     ) {
         Text(text = "Steps: $steps", style = MaterialTheme.typography.headlineMedium)
-        Button(onClick = { viewModel.startCounting() }) {
-            Text("Start Step Counter")
-        }
+
     }
 }

@@ -27,7 +27,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Check for permission
+        var attributionContext = createAttributionContext("MoveMate")
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACTIVITY_RECOGNITION), REQUEST_ACTIVITY_RECOGNITION)
         }
@@ -42,8 +43,7 @@ class MainActivity : ComponentActivity() {
             CCL3StepcounterTheme {
                 val navController = rememberNavController()
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    AppNavigation(stepsDao = stepsDao, goalsDao = goalsDao, modifier= Modifier.padding(innerPadding))
-                }
+                    AppNavigation(stepsDao = stepsDao, goalsDao = goalsDao, navController= navController, modifier = Modifier.padding(innerPadding))                }
             }
         }
     }

@@ -8,7 +8,7 @@ import androidx.room.Query
 @Dao
 interface StepsDao {
     @Query("SELECT * FROM steps WHERE date = :date")
-    suspend fun getStepsByDate(date: String): StepEntity?
+    suspend fun getStepsForDate(date: String): StepEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSteps(step: StepEntity)
