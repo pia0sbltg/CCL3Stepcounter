@@ -16,11 +16,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import dev.cc231046.ccl3stepcounter.data.GoalsDao
 import dev.cc231046.ccl3stepcounter.data.StepsDao
 import dev.cc231046.ccl3stepcounter.data.StepsDatabase
 import dev.cc231046.ccl3stepcounter.ui.AppNavigation
+import dev.cc231046.ccl3stepcounter.ui.StepTrackingWorker
 import dev.cc231046.ccl3stepcounter.ui.theme.CCL3StepcounterTheme
+import java.util.concurrent.TimeUnit
 
 class MainActivity : ComponentActivity() {
     private val REQUEST_ACTIVITY_RECOGNITION = 100
@@ -31,7 +36,18 @@ class MainActivity : ComponentActivity() {
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACTIVITY_RECOGNITION), REQUEST_ACTIVITY_RECOGNITION)
+        }else{
+            print("No permission")
         }
+
+        val workRequest = PeriodicWorkRequestBuilder<StepTrackingWorker>(1, TimeUnit.DAYS).build()
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "StepTrackingWorker",
+            ExistingPeriodicWorkPolicy.KEEP,
+            workRequest
+        )
+
 
         val database = StepsDatabase.getDatabase(applicationContext)
         val stepsDao = database.stepsDao()
