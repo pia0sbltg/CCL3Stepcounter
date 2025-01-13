@@ -32,8 +32,7 @@ class StepsViewModel(stepsDao: StepsDao, context: Context) : ViewModel() {
 }
 
 class StepCounter(private val context: Context) : SensorEventListener {
-    private val sensorManager: SensorManager = context.createAttributionContext("StepCounter")
-        .getSystemService(Context.SENSOR_SERVICE) as SensorManager
+    private val sensorManager: SensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     private val stepSensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
     private var stepCount: Int = 0
     private var initialStepCount: Int? = null // To track steps since startListening()
