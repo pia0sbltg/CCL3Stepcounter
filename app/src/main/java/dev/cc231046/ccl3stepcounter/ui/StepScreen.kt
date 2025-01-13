@@ -22,25 +22,30 @@ import dev.cc231046.ccl3stepcounter.data.StepsDao
 
 enum class Routes(val route: String) {
     Main("Steps"),
-    Goals("Goals")
+    Goals("Goals"),
+    Edit("Edit_Goal")
 
 }
 
 @Composable
 fun AppNavigation(stepsDao: StepsDao,goalsDao: GoalsDao, navController: NavHostController, modifier: Modifier){
     val context = LocalContext.current
+
     NavHost(navController =navController, startDestination = Routes.Main.name) {
         composable(Routes.Main.name){
-            StepScreen(StepsViewModel(stepsDao = stepsDao, context = context ))
+            StepScreen(StepsViewModel(stepsDao = stepsDao, context = context ), navController)
         }
         composable(Routes.Goals.name){
-            GoalsScreen(GoalsViewModel(goalsDao))
+            GoalsScreen(GoalsViewModel(goalsDao), onAddGoalClick = {navController.navigate(Routes.Edit.name)})
+        }
+        composable(Routes.Edit.name){
+            EditGoalScreen(viewModel = GoalsViewModel(goalsDao), onGoalSaved = {navController.popBackStack()})
         }
     }
 }
 
 @Composable
-fun StepScreen ( viewModel: StepsViewModel) {
+fun StepScreen ( viewModel: StepsViewModel, navController: NavHostController) {
     val steps by viewModel.currentSteps.observeAsState(0)
 
     Column(
@@ -50,5 +55,8 @@ fun StepScreen ( viewModel: StepsViewModel) {
     ) {
         Text(text = "Steps: $steps", style = MaterialTheme.typography.headlineMedium)
 
+        Button(onClick = {navController.navigate(Routes.Goals.name)}) {
+            Text("Goals bruh")
+        }
     }
 }

@@ -1,7 +1,9 @@
 package dev.cc231046.ccl3stepcounter.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,31 +19,40 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import dev.cc231046.ccl3stepcounter.data.GoalEntity
 
 @Composable
-fun GoalsScreen(viewModel: GoalsViewModel) {
+fun GoalsScreen(viewModel: GoalsViewModel, onAddGoalClick: () -> Unit) {
     val goals = viewModel.goals.collectAsState().value
-    LazyColumn {
-        items(goals) { goal ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text("Goal: ${goal.goal}")
-                IconButton(onClick = { /* Edit goal */ }) {
-                    Icon(Icons.Default.Edit, contentDescription = "Edit")
-                }
-                IconButton(onClick = { viewModel.deleteGoal(goal) }) {
-                    Icon(Icons.Default.Delete, contentDescription = "Delete")
-                }
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.SpaceBetween
+    ) {
+        LazyColumn(modifier = Modifier.weight(1f)) {
+            items(goals) { goal ->
+                GoalItem(goal = goal, onDeleteClick = { viewModel.deleteGoal(goal) })
             }
         }
-        item {
-            Button(onClick = { /* Navigate to add goal */ }) {
-                Text("Add Goal")
-            }
+        Button(
+            onClick = onAddGoalClick,
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text("Add Goal")
+        }
+    }
+}
+
+@Composable
+fun GoalItem(goal: GoalEntity, onDeleteClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(text = "Day: ${goal.dayOfWeek}, Steps: ${goal.stepGoal}")
+        IconButton(onClick = onDeleteClick) {
+            Icon(Icons.Default.Delete, contentDescription = "Delete Goal")
         }
     }
 }
