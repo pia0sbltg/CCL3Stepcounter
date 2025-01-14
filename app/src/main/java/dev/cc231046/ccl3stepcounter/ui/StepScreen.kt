@@ -4,11 +4,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -39,8 +43,9 @@ fun AppNavigation(stepsDao: StepsDao,goalsDao: GoalsDao, modifier: Modifier){
 }
 
 @Composable
-fun StepScreen ( viewModel: StepsViewModel) {
+fun StepScreen(viewModel: StepsViewModel) {
     val steps by viewModel.currentSteps.observeAsState(0)
+    var isCounting by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -48,8 +53,16 @@ fun StepScreen ( viewModel: StepsViewModel) {
         verticalArrangement = Arrangement.Center
     ) {
         Text(text = "Steps: $steps", style = MaterialTheme.typography.headlineMedium)
-        Button(onClick = { viewModel.startCounting() }) {
-            Text("Start Step Counter")
+        Button(
+            onClick = {
+                viewModel.startCounting()
+                isCounting = true
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (isCounting) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+            )
+        ) {
+            Text(if (isCounting) "Counting Steps..." else "Start Step Counter")
         }
     }
 }

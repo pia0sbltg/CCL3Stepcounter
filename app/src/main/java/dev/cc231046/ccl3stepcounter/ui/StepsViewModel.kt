@@ -1,5 +1,6 @@
 package dev.cc231046.ccl3stepcounter.ui
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -32,8 +33,9 @@ class StepsViewModel(stepsDao: StepsDao, context: Context) : ViewModel() {
 }
 
 class StepCounter(private val context: Context) : SensorEventListener {
-    private val sensorManager: SensorManager = context.createAttributionContext("StepCounter")
-        .getSystemService(Context.SENSOR_SERVICE) as SensorManager
+    @SuppressLint("ServiceCast")
+    private val sensorManager: SensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+
     private val stepSensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
     private var stepCount: Int = 0
     private var initialStepCount: Int? = null // To track steps since startListening()
