@@ -25,6 +25,9 @@ Movemate stands alongside other popular fitness apps, but with a unique twist:
 
 While these apps provide excellent tracking features, Movemate goes beyond by incorporating gamification elements to keep users engaged and motivated.
 
+### Mockups and User Flow
+![Movemate App Mockup](assets/Google Pixel 2 - 1.png "First Mockup")
+
 ### Gamification
 We plan to add gamification features to make Movemate more fun and interactive. Instead of just showing your step count in a standard UI, Movemate introduces a **virtual pet** that thrives based on your activity:
 
