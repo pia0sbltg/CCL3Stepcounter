@@ -5,30 +5,32 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.os.Build
-import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.libraries.places.api.model.LocalDate
+import dev.cc231046.ccl3stepcounter.data.GoalsDao
 import dev.cc231046.ccl3stepcounter.data.StepEntity
 import dev.cc231046.ccl3stepcounter.data.StepsDao
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
-class StepsViewModel(stepsDao: StepsDao, context: Context) : ViewModel() {
-    private val stepTracker = StepTracker(context,stepsDao)
+class StepsViewModel(private val stepsDao: StepsDao, private val goalsDao: GoalsDao, private val applicationContext: Context) : ViewModel() {
+    private val stepTracker = StepTracker(applicationContext,stepsDao)
 
     private val _currentSteps = MutableLiveData(0)
     val currentSteps: LiveData<Int> = _currentSteps
+    private val _stepHistory = MutableLiveData<List<StepEntity>>()
+    val stepHistory: LiveData<List<StepEntity>> = _stepHistory
 
     init {
         viewModelScope.launch {
             stepTracker.getOrInitializeInitialSteps()
             startCounting()
+            checkDailyGoal()
+            loadStepHistory()
         }
     }
 
@@ -43,6 +45,24 @@ class StepsViewModel(stepsDao: StepsDao, context: Context) : ViewModel() {
         stepTracker.stopTracking()
     }
 
+    private suspend fun checkDailyGoal(){
+        val today = LocalDate.now().toString()
+        print(today)
+        val todaySteps = stepsDao.getStepsForDate(today )
+        val goalsForToday = goalsDao.getGoalsForDay(LocalDate.now().dayOfWeek.value)
+
+        if(todaySteps != null && goalsForToday.isNotEmpty()){
+            val highestGoal = goalsForToday.maxOf { it.stepGoal }
+            val goalReached = todaySteps.totalSteps >= highestGoal
+
+            stepsDao.updateGoalReached(today,goalReached)
+        }
+    }
+
+    private suspend fun loadStepHistory(){
+        _stepHistory.postValue(stepsDao.getLastSixDays())
+    }
+
 }
 
 class StepTracker(private val context: Context, private val stepsDao: StepsDao) : SensorEventListener {
@@ -52,7 +72,7 @@ class StepTracker(private val context: Context, private val stepsDao: StepsDao) 
     private var onStepsUpdated: ((Int) -> Unit)? = null
 
     suspend fun getOrInitializeInitialSteps(): Int {
-        val today = java.time.LocalDate.now().toString()
+        val today = LocalDate.now().toString()
         val storedSteps = stepsDao.getStepsForDate(today)
         return if (storedSteps != null) {
             initialStepCount = storedSteps.initialStepCount
@@ -77,7 +97,7 @@ class StepTracker(private val context: Context, private val stepsDao: StepsDao) 
     override fun onSensorChanged(event: SensorEvent?) {
         event?.let {
             val totalDeviceSteps = it.values[0].toInt()
-            val today = java.time.LocalDate.now().toString()
+            val today = LocalDate.now().toString()
             print(today)
 
             if (initialStepCount == null) {

@@ -16,6 +16,14 @@
         android:theme="@style/Theme.CCL3Stepcounter"
         tools:targetApi="31">
 
+        <service
+            android:name=".ui.StepTrackingJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:exported="true" />
+
+        <receiver android:name=".MidnightJobReceiver" android:exported="true"
+            android:permission="android.permission.ACTIVITY_RECOGNITION" />
+
         <meta-data
             android:name="android.app.attribution_tags"
             android:value="attributionTag" />

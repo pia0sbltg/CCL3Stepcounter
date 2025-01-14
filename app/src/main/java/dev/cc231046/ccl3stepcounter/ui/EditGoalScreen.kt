@@ -7,9 +7,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -25,36 +30,54 @@ import androidx.compose.ui.unit.dp
 import dev.cc231046.ccl3stepcounter.data.GoalEntity
 
 @Composable
-fun EditGoalScreen(viewModel: GoalsViewModel, onGoalSaved:() -> Unit) {
+fun EditGoalScreen(viewModel: GoalsViewModel, onGoalSaved: () -> Unit) {
     var dayOfWeek by remember { mutableIntStateOf(1) }
     var stepGoal by remember { mutableStateOf("") }
 
-    Column (modifier = Modifier.fillMaxSize().padding(16.dp),
-        verticalArrangement = Arrangement.Center){
+    var isDropdownExpanded by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center
+    ) {
 
         Text("Set Goal", style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(16.dp))
 
         Text("Select Day:")
-        DropdownMenu(
-            expanded = false, // Implement dropdown logic here
-            onDismissRequest = {  }
-        ) {
-            (1..7).forEach { day ->
-                DropdownMenuItem({Text("Day $day")},onClick = { dayOfWeek = day })
-            }
+        IconButton(onClick = { isDropdownExpanded = true }) {
+            Icon(Icons.Default.MoreVert, contentDescription = "More options")
         }
 
-            OutlinedTextField(
-                value = stepGoal,
-                onValueChange = { stepGoal = it },
-                label = { Text("Step Goal") },
-                modifier = Modifier.fillMaxWidth()
-            )
+        DropdownMenu(
+            expanded = isDropdownExpanded,
+            onDismissRequest = { isDropdownExpanded = false }
+        ) {
+            (1..7).forEach { day ->
+                DropdownMenuItem(
+                    text = { Text("Day $day") },
+                    onClick = {
+                        dayOfWeek = day // Update selected day
+                        isDropdownExpanded = false // Close dropdown menu
+                    }
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
 
-            Spacer(modifier = Modifier.height(16.dp))
+        OutlinedTextField(
+            value = stepGoal,
+            onValueChange = { stepGoal = it },
+            label = { Text("Step Goal") },
+            modifier = Modifier.fillMaxWidth()
+        )
 
-            Button(onClick = {
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = {
                 viewModel.addOrUpdateGoal(
                     GoalEntity(
                         dayOfWeek = dayOfWeek,
@@ -64,10 +87,10 @@ fun EditGoalScreen(viewModel: GoalsViewModel, onGoalSaved:() -> Unit) {
                 onGoalSaved()
 
             },
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            ) {
-                Text("Save Goal")
-            }
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        ) {
+            Text("Save Goal")
+        }
 
     }
 }
