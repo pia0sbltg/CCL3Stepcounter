@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "dev.cc231046.ccl3stepcounter"
-        minSdk = 30
+        minSdk = 29
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
