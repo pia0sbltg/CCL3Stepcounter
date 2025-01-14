@@ -3,8 +3,10 @@ package dev.cc231046.ccl3stepcounter.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -21,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -57,54 +60,53 @@ fun AppNavigation(stepsDao: StepsDao,goalsDao: GoalsDao, navController: NavHostC
 }
 
 @Composable
-
-fun StepScreen ( viewModel: StepsViewModel, navController: NavHostController) {
+fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
     val steps by viewModel.currentSteps.observeAsState(0)
     val stepsHistory by viewModel.stepHistory.observeAsState(emptyList())
     val todayGoal by viewModel.todayGoal.observeAsState(0)
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Top
     ) {
+        Spacer(modifier = Modifier.height(20.dp))
 
-        Column (modifier = Modifier.padding(0.dp,50.dp), verticalArrangement = Arrangement.Center){
-            Text(text = "Steps: $steps", style = MaterialTheme.typography.headlineMedium)
-
-            Button(onClick = {navController.navigate(Routes.Goals.name)}) {
-                Text("Goals")
-            }
-
-            Text(
-                text = if (todayGoal > 0) {
-                    "Today's Goal: $todayGoal steps"
-                } else {
-                    "No Goal Set for Today"
-                },
-                style = MaterialTheme.typography.bodyLarge
-            )
-
-        }
+        CircularProgressWithDog(
+            steps = steps,
+            goalSteps = todayGoal,
+            modifier = Modifier.weight(1f)
+        )
 
         Row(
-            modifier = Modifier.fillMaxSize(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.Bottom
-        ){
-            LazyColumn() {
-                items(stepsHistory){stepEntity ->
-                    StepHistoryItem(stepEntity)
-
-                }
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Button(
+                onClick = { navController.navigate(Routes.Goals.name) },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Goals")
             }
-
-
         }
 
+        LazyColumn(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            items(stepsHistory) { stepEntity ->
+                StepHistoryItem(stepEntity)
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+        }
     }
 }
-
 
 @Composable
 fun StepHistoryItem(stepEntity: StepEntity) {
@@ -112,13 +114,23 @@ fun StepHistoryItem(stepEntity: StepEntity) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = stepEntity.date)
-        Text(text = stepEntity.totalSteps.toString())
         Text(
-            text = if (stepEntity.goalReached) "Goal Reached 🎉" else "Goal Not Reached",
+            text = stepEntity.date,
             style = MaterialTheme.typography.bodyMedium
+        )
+        Text(
+            text = "${stepEntity.totalSteps} steps",
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Text(
+            text = if (stepEntity.goalReached) "✓" else "✗",
+            style = MaterialTheme.typography.bodyMedium,
+            color = if (stepEntity.goalReached)
+                Color(0xFF4CAF50) else Color(0xFFE57373)
         )
     }
 }
+
