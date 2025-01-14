@@ -62,6 +62,11 @@ dependencies {
     implementation("androidx.work:work-runtime-ktx:2.8.1")
 
 
+    implementation ("androidx.compose.animation:animation:1.5.0")
+    // For GIF support
+    implementation ("io.coil-kt:coil-compose:2.4.0")
+    implementation ("io.coil-kt:coil-gif:2.4.0")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
