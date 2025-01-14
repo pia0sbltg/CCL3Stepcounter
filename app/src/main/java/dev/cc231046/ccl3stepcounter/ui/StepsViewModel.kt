@@ -15,6 +15,7 @@ import dev.cc231046.ccl3stepcounter.data.StepsDao
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 
 class StepsViewModel(private val stepsDao: StepsDao, private val goalsDao: GoalsDao, private val applicationContext: Context) : ViewModel() {
@@ -31,6 +32,10 @@ class StepsViewModel(private val stepsDao: StepsDao, private val goalsDao: Goals
 
     init {
         viewModelScope.launch {
+           /*
+           stepsDao.deleteEverything()
+            goalsDao.deleteEveryGoal()
+            */
             stepTracker.getOrInitializeInitialSteps()
             startCounting()
             checkDailyGoal()
@@ -50,6 +55,7 @@ class StepsViewModel(private val stepsDao: StepsDao, private val goalsDao: Goals
         stepTracker.stopTracking()
     }
 
+
     private suspend fun checkDailyGoal(){
         val today = LocalDate.now().toString()
         val todaySteps = stepsDao.getStepsForDate(today )
@@ -68,12 +74,7 @@ class StepsViewModel(private val stepsDao: StepsDao, private val goalsDao: Goals
     }
 
     private suspend fun loadTodayGoal() {
-        val goalsForToday = goalsDao.getGoalsForDay(LocalDate.now().dayOfWeek.value)
-        if (goalsForToday.isNotEmpty()) {
-            _todayGoal.postValue(goalsForToday.maxOf { it.stepGoal })
-        } else {
-            _todayGoal.postValue(0)
-        }
+        _todayGoal.postValue(goalsDao.getGoalsForDay(LocalDate.now().dayOfWeek.value).maxOfOrNull { it.stepGoal } ?: 0)
     }
 
 }
@@ -86,13 +87,16 @@ class StepTracker(private val context: Context, private val stepsDao: StepsDao) 
 
     suspend fun getOrInitializeInitialSteps(): Int {
         val today = LocalDate.now().toString()
+
         val storedSteps = stepsDao.getStepsForDate(today)
-        return if (storedSteps != null) {
+        if (storedSteps != null) {
+            // Use the existing initialStepCount and totalSteps
             initialStepCount = storedSteps.initialStepCount
-            storedSteps.initialStepCount
-        } else {
-            0
+            println("DEBUG: Loaded initialStepCount from DB: $initialStepCount")
+            return storedSteps.totalSteps
         }
+        println("DEBUG: Initialized initialStepCount: $initialStepCount")
+        return 0
     }
 
     fun startTracking(onStepsUpdated: (Int) -> Unit) {
@@ -112,36 +116,81 @@ class StepTracker(private val context: Context, private val stepsDao: StepsDao) 
             val totalDeviceSteps = it.values[0].toInt()
             val today = LocalDate.now().toString()
 
-            if (initialStepCount == null) {
-                // Save the initial step count to the database if it´s not there
-                initialStepCount = totalDeviceSteps
-                CoroutineScope(Dispatchers.IO).launch {
-                    stepsDao.insertOrUpdateSteps(
-                        StepEntity(
-                            date = today,
-                            initialStepCount = totalDeviceSteps,
-                            totalSteps = 0
-                        )
-                    )
-                }
-            }
+            println("DEBUG totaldevicesteps: $totalDeviceSteps")
 
-            val todaySteps = totalDeviceSteps - (initialStepCount ?: totalDeviceSteps)
+
             CoroutineScope(Dispatchers.IO).launch {
+                // Retrieve today's entry or initialize it if not present
+                if (initialStepCount == null) {
+                    val storedSteps = stepsDao.getStepsForDate(today)
+                    if (storedSteps == null) {
+                        initialStepCount = totalDeviceSteps
+                        stepsDao.insertOrUpdateSteps(
+                            StepEntity(
+                                date = today,
+                                initialStepCount = totalDeviceSteps,
+                                totalSteps = 0
+                            )
+                        )
+                        println("DEBUG: First-time initialization in onSensorChanged. InitialStepCount: $initialStepCount")
+                    } else {
+                        println(storedSteps)
+                        initialStepCount = storedSteps.initialStepCount
+                        println("DEBUG: Loaded initialStepCount in onSensorChanged: $initialStepCount")
+                    }
+                }
+
+                // Calculate steps for today
+
+                val todaySteps = totalDeviceSteps - (initialStepCount?: totalDeviceSteps)
+
+                println(todaySteps)
+                println(initialStepCount)
                 stepsDao.insertOrUpdateSteps(
                     StepEntity(
                         date = today,
-                        initialStepCount =  initialStepCount!!,
+                        initialStepCount = initialStepCount!!,
                         totalSteps = todaySteps
                     )
                 )
+
+                // Update UI
+                withContext(Dispatchers.Main) {
+                    onStepsUpdated?.invoke(todaySteps)
+                }
             }
-            onStepsUpdated?.invoke(todaySteps)
         }
     }
 
 
-    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-        // Not used
+    private fun getCurrentStepCount(): Int {
+        val stepSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
+        var currentSteps = 0
+
+        if (stepSensor != null) {
+            val sensorEventListener = object : SensorEventListener {
+                override fun onSensorChanged(event: SensorEvent?) {
+                    currentSteps = event?.values?.get(0)?.toInt() ?: 0
+                    println("DEBUG: SensorEventListener received step count: $currentSteps")
+                }
+
+                override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+                    // Not used
+                }
+            }
+            sensorManager.registerListener(sensorEventListener, stepSensor, SensorManager.SENSOR_DELAY_UI)
+            Thread.sleep(100) // Allow some time for the listener to receive a value
+            sensorManager.unregisterListener(sensorEventListener)
+        } else {
+            println("DEBUG: Step sensor not available")
+        }
+        println("DEBUG: getCurrentStepCount returning: $currentSteps")
+        return currentSteps
     }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+        // Neyy
+    }
+
+
 }

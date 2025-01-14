@@ -14,6 +14,9 @@ interface StepsDao {
     @Query("SELECT * FROM steps ORDER BY date DESC LIMIT 6")
     suspend fun getLastSixDays(): List<StepEntity>
 
+    @Query("SELECT * FROM steps ORDER BY date DESC LIMIT 1")
+    suspend fun getLastStepEntry(): StepEntity?
+
     @Query("SELECT * FROM steps")
     suspend fun getAllSteps(): List<StepEntity>?
 
