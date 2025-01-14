@@ -22,8 +22,12 @@ class StepsViewModel(private val stepsDao: StepsDao, private val goalsDao: Goals
 
     private val _currentSteps = MutableLiveData(0)
     val currentSteps: LiveData<Int> = _currentSteps
+
     private val _stepHistory = MutableLiveData<List<StepEntity>>()
     val stepHistory: LiveData<List<StepEntity>> = _stepHistory
+
+    private val _todayGoal = MutableLiveData<Int>()
+    val todayGoal: LiveData<Int> = _todayGoal
 
     init {
         viewModelScope.launch {
@@ -31,6 +35,7 @@ class StepsViewModel(private val stepsDao: StepsDao, private val goalsDao: Goals
             startCounting()
             checkDailyGoal()
             loadStepHistory()
+            loadTodayGoal()
         }
     }
 
@@ -47,7 +52,6 @@ class StepsViewModel(private val stepsDao: StepsDao, private val goalsDao: Goals
 
     private suspend fun checkDailyGoal(){
         val today = LocalDate.now().toString()
-        print(today)
         val todaySteps = stepsDao.getStepsForDate(today )
         val goalsForToday = goalsDao.getGoalsForDay(LocalDate.now().dayOfWeek.value)
 
@@ -61,6 +65,15 @@ class StepsViewModel(private val stepsDao: StepsDao, private val goalsDao: Goals
 
     private suspend fun loadStepHistory(){
         _stepHistory.postValue(stepsDao.getLastSixDays())
+    }
+
+    private suspend fun loadTodayGoal() {
+        val goalsForToday = goalsDao.getGoalsForDay(LocalDate.now().dayOfWeek.value)
+        if (goalsForToday.isNotEmpty()) {
+            _todayGoal.postValue(goalsForToday.maxOf { it.stepGoal })
+        } else {
+            _todayGoal.postValue(0)
+        }
     }
 
 }
@@ -98,13 +111,12 @@ class StepTracker(private val context: Context, private val stepsDao: StepsDao) 
         event?.let {
             val totalDeviceSteps = it.values[0].toInt()
             val today = LocalDate.now().toString()
-            print(today)
 
             if (initialStepCount == null) {
                 // Save the initial step count to the database if it´s not there
                 initialStepCount = totalDeviceSteps
                 CoroutineScope(Dispatchers.IO).launch {
-                    stepsDao.insertSteps(
+                    stepsDao.insertOrUpdateSteps(
                         StepEntity(
                             date = today,
                             initialStepCount = totalDeviceSteps,
@@ -116,7 +128,7 @@ class StepTracker(private val context: Context, private val stepsDao: StepsDao) 
 
             val todaySteps = totalDeviceSteps - (initialStepCount ?: totalDeviceSteps)
             CoroutineScope(Dispatchers.IO).launch {
-                stepsDao.insertSteps(
+                stepsDao.insertOrUpdateSteps(
                     StepEntity(
                         date = today,
                         initialStepCount =  initialStepCount!!,

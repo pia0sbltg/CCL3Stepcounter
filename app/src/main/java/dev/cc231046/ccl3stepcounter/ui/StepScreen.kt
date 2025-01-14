@@ -56,6 +56,8 @@ fun AppNavigation(stepsDao: StepsDao,goalsDao: GoalsDao, navController: NavHostC
 fun StepScreen ( viewModel: StepsViewModel, navController: NavHostController) {
     val steps by viewModel.currentSteps.observeAsState(0)
     val stepsHistory by viewModel.stepHistory.observeAsState(emptyList())
+    val todayGoal by viewModel.todayGoal.observeAsState(0)
+
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -69,6 +71,15 @@ fun StepScreen ( viewModel: StepsViewModel, navController: NavHostController) {
             Button(onClick = {navController.navigate(Routes.Goals.name)}) {
                 Text("Goals")
             }
+
+            Text(
+                text = if (todayGoal > 0) {
+                    "Today's Goal: $todayGoal steps"
+                } else {
+                    "No Goal Set for Today"
+                },
+                style = MaterialTheme.typography.bodyLarge
+            )
 
         }
 
@@ -99,6 +110,7 @@ fun StepHistoryItem(stepEntity: StepEntity) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(text = stepEntity.date)
+        Text(text = stepEntity.totalSteps.toString())
         Text(
             text = if (stepEntity.goalReached) "Goal Reached 🎉" else "Goal Not Reached",
             style = MaterialTheme.typography.bodyMedium

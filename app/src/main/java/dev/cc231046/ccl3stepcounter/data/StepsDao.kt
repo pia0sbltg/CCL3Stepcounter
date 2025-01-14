@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 
 @Dao
 interface StepsDao {
@@ -16,8 +17,24 @@ interface StepsDao {
     @Query("SELECT * FROM steps")
     suspend fun getAllSteps(): List<StepEntity>?
 
+    @Query("UPDATE steps SET totalSteps = :totalSteps WHERE date = :date")
+    suspend fun updateTotalSteps(date: String, totalSteps: Int)
+
+    @Transaction
+    suspend fun insertOrUpdateSteps(steps: StepEntity) {
+        val existingEntry = getStepsForDate(steps.date)
+        if (existingEntry == null) {
+            insertSteps(steps)
+        } else {
+            updateTotalSteps(steps.date, steps.totalSteps)
+        }
+    }
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSteps(step: StepEntity)
+
+    @Query("DELETE FROM steps")
+    suspend fun deleteEverything()
 
     @Query("UPDATE steps SET goalReached = :goalReached WHERE date = :date")
     suspend fun updateGoalReached(date: String, goalReached: Boolean)

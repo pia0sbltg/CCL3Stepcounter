@@ -17,7 +17,7 @@ import kotlinx.coroutines.withContext
 import java.time.LocalDate
 
 @SuppressLint("SpecifyJobSchedulerIdRange")
-class StepTrackingJobService (private val applicationContext : Context): JobService(){
+class StepTrackingJobService: JobService(){
     private val stepsDao = StepsDatabase.getDatabase(applicationContext).stepsDao()
     val goalsDao = StepsDatabase.getDatabase(applicationContext).goalsDao()
 
@@ -45,9 +45,11 @@ class StepTrackingJobService (private val applicationContext : Context): JobServ
         }
         val goalsForToday = goalsDao.getGoalsForDay(LocalDate.now().dayOfWeek.value)
 
-        if(storedSteps == null){
+        println(goalsForToday)
+
+        if(storedSteps === null){
             withContext(Dispatchers.IO) {
-                stepsDao.insertSteps(
+                stepsDao.insertOrUpdateSteps(
                     StepEntity(
                         date = today,
                         initialStepCount = currentStepCount,
@@ -94,7 +96,7 @@ class StepTrackingJobService (private val applicationContext : Context): JobServ
         previousEntries?.forEach { entry ->
             if (entry.date != today && entry.totalSteps == 0) {
                 val stepsForThatDay = currentStepCount - entry.initialStepCount
-                stepsDao.insertSteps(entry.copy(totalSteps = stepsForThatDay))
+                stepsDao.insertOrUpdateSteps(entry.copy(totalSteps = stepsForThatDay))
             }
         }
     }
