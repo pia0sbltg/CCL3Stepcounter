@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "dev.cc231046.ccl3stepcounter"
-        minSdk = 30
+        minSdk = 29
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -56,8 +56,16 @@ dependencies {
 
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.runtime)
+    implementation(libs.places)
     ksp("androidx.room:room-compiler:2.5.0")
 
+    implementation("androidx.work:work-runtime-ktx:2.8.1")
+
+
+    implementation ("androidx.compose.animation:animation:1.5.0")
+    // For GIF support
+    implementation ("io.coil-kt:coil-compose:2.4.0")
+    implementation ("io.coil-kt:coil-gif:2.4.0")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

@@ -6,29 +6,66 @@ import dev.cc231046.ccl3stepcounter.data.GoalEntity
 import dev.cc231046.ccl3stepcounter.data.GoalsDao
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
 
 class GoalsViewModel(private val goalsDao: GoalsDao) : ViewModel() {
-    private val _goals = MutableStateFlow(emptyList<GoalEntity>())
+    private val _goals = MutableStateFlow<List<GoalEntity>>(emptyList())
     val goals: StateFlow<List<GoalEntity>> = _goals
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error
+
     init {
+        loadGoals()
+    }
+
+    private fun loadGoals() {
         viewModelScope.launch {
-            _goals.value = goalsDao.getAllGoals()
+            _isLoading.value = true
+            try {
+                withContext(Dispatchers.IO) {
+                    _goals.value = goalsDao.getAllGoals()
+                }
+                _error.value = null
+            } catch (e: Exception) {
+                _error.value = "Failed to load goals: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 
     fun addOrUpdateGoal(goal: GoalEntity) {
         viewModelScope.launch {
-            goalsDao.insertGoal(goal)
-            _goals.value = goalsDao.getAllGoals()
+            try {
+                withContext(Dispatchers.IO) {
+                    goalsDao.insertGoal(goal)
+                    _goals.value = goalsDao.getAllGoals()
+                }
+                _error.value = null
+            } catch (e: Exception) {
+                _error.value = "Failed to save goal: ${e.message}"
+            }
         }
     }
 
     fun deleteGoal(goal: GoalEntity) {
         viewModelScope.launch {
-            goalsDao.deleteGoal(goal)
-            _goals.value = goalsDao.getAllGoals()
+            try {
+                withContext(Dispatchers.IO) {
+                    goalsDao.deleteGoal(goal)
+                    _goals.value = goalsDao.getAllGoals()
+                }
+                _error.value = null
+            } catch (e: Exception) {
+                _error.value = "Failed to delete goal: ${e.message}"
+            }
         }
     }
 }
