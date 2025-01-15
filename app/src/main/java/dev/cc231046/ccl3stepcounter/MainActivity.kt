@@ -46,6 +46,7 @@ class MainActivity : ComponentActivity() {
         val database = StepsDatabase.getDatabase(applicationContext)
         val stepsDao = database.stepsDao()
         val goalsDao = database.goalsDao()
+        val petDao = database.petDao()
 
 
         enableEdgeToEdge()
@@ -53,7 +54,7 @@ class MainActivity : ComponentActivity() {
             CCL3StepcounterTheme {
                 val navController = rememberNavController()
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    AppNavigation(stepsDao = stepsDao, goalsDao = goalsDao, navController= navController, modifier = Modifier.padding(innerPadding))                }
+                    AppNavigation(stepsDao = stepsDao, goalsDao = goalsDao, petDao= petDao, navController= navController, modifier = Modifier.padding(innerPadding))                }
             }
         }
     }

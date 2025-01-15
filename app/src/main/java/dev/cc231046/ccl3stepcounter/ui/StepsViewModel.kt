@@ -10,6 +10,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.cc231046.ccl3stepcounter.data.GoalsDao
+import dev.cc231046.ccl3stepcounter.data.PetDao
+import dev.cc231046.ccl3stepcounter.data.PetEntity
 import dev.cc231046.ccl3stepcounter.data.StepEntity
 import dev.cc231046.ccl3stepcounter.data.StepsDao
 import kotlinx.coroutines.CoroutineScope
@@ -18,7 +20,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 
-class StepsViewModel(private val stepsDao: StepsDao, private val goalsDao: GoalsDao, private val applicationContext: Context) : ViewModel() {
+class StepsViewModel(
+    private val stepsDao: StepsDao,
+    private val goalsDao: GoalsDao,
+    private val petDao: PetDao,
+    private val applicationContext: Context) : ViewModel() {
 
     private val stepTracker = StepTracker(applicationContext,stepsDao, goalsDao){
         loadStepHistory()
@@ -32,6 +38,9 @@ class StepsViewModel(private val stepsDao: StepsDao, private val goalsDao: Goals
     private val _todayGoal = MutableLiveData<Int>()
     val todayGoal: LiveData<Int> = _todayGoal
 
+    private val _petState = MutableLiveData<PetEntity?>()
+    val petState: LiveData<PetEntity?> = _petState
+
 
     init {
         viewModelScope.launch {
@@ -41,6 +50,7 @@ class StepsViewModel(private val stepsDao: StepsDao, private val goalsDao: Goals
             */
             //stepsDao.deleteToday(LocalDate.now().toString())
             stepTracker.getOrInitializeInitialSteps()
+            loadPetState()
             startCounting()
             checkDailyGoal()
             loadStepHistory()
@@ -57,6 +67,11 @@ class StepsViewModel(private val stepsDao: StepsDao, private val goalsDao: Goals
     override fun onCleared() {
         super.onCleared()
         stepTracker.stopTracking()
+    }
+
+    private suspend fun loadPetState() {
+        val pet = petDao.getPet() ?: PetEntity()
+        _petState.postValue(pet)
     }
 
     private suspend fun checkDailyGoal(){
@@ -79,6 +94,25 @@ class StepsViewModel(private val stepsDao: StepsDao, private val goalsDao: Goals
 
     private suspend fun loadTodayGoal() {
         _todayGoal.postValue(goalsDao.getGoalsForDay(LocalDate.now().dayOfWeek.value).maxOfOrNull { it.stepGoal } ?: 0)
+    }
+
+    suspend fun feedPet() {
+        val today = LocalDate.now().toString()
+        val pet = petDao.getPet() ?: PetEntity()
+
+        if (pet.lastFedDate == today) return // Already fed today
+
+        val newFeeds = pet.feeds + 1
+        val newStage = if (newFeeds >= 10) pet.currentStage + 1 else pet.currentStage
+        val newFeedsReset = if (newFeeds >= 10) 0 else newFeeds
+
+        petDao.updatePet(
+            feeds = newFeedsReset,
+            currentStage = newStage,
+            lastFedDate = today
+        )
+
+        loadPetState()
     }
 
 }
@@ -156,6 +190,7 @@ class StepTracker(private val context: Context, private val stepsDao: StepsDao, 
                 if(calcTodaySteps>todaySteps){
                     todaySteps=calcTodaySteps
                 }
+
                 println(todaySteps)
                 println(initialStepCount)
                 stepsDao.insertOrUpdateSteps(
@@ -174,12 +209,12 @@ class StepTracker(private val context: Context, private val stepsDao: StepsDao, 
 
                     if (storedSteps?.goalReached != goalReached) {
                         stepsDao.updateGoalReached(today, goalReached)
-                        onGoalUpdated() // Notify ViewModel
                     }
                 }
 
                 withContext(Dispatchers.Main) {
                     onStepsUpdated?.invoke(todaySteps)
+                    onGoalUpdated()
                 }
             }
         }

@@ -26,14 +26,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dev.cc231046.ccl3stepcounter.data.GoalsDao
+import dev.cc231046.ccl3stepcounter.data.PetDao
 import dev.cc231046.ccl3stepcounter.data.StepEntity
 import dev.cc231046.ccl3stepcounter.data.StepsDao
+import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 enum class Routes(val route: String) {
     Main("Steps"),
@@ -43,12 +47,12 @@ enum class Routes(val route: String) {
 }
 
 @Composable
-fun AppNavigation(stepsDao: StepsDao,goalsDao: GoalsDao, navController: NavHostController, modifier: Modifier){
+fun AppNavigation(stepsDao: StepsDao,goalsDao: GoalsDao, petDao: PetDao, navController: NavHostController, modifier: Modifier){
     val context = LocalContext.current
 
     NavHost(navController =navController, startDestination = Routes.Main.name) {
         composable(Routes.Main.name){
-            StepScreen(StepsViewModel(stepsDao = stepsDao, goalsDao = goalsDao ,applicationContext = context ), navController)
+            StepScreen(StepsViewModel(stepsDao = stepsDao, goalsDao = goalsDao , petDao = petDao,applicationContext = context ), navController)
         }
         composable(Routes.Goals.name){
             GoalsScreen(GoalsViewModel(goalsDao),navController= navController, onAddGoalClick = {navController.navigate(Routes.Edit.name)})
@@ -64,6 +68,10 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
     val steps by viewModel.currentSteps.observeAsState(0)
     val stepsHistory by viewModel.stepHistory.observeAsState(emptyList())
     val todayGoal by viewModel.todayGoal.observeAsState(0)
+    val petState by viewModel.petState.observeAsState()
+
+    val todayGoalReached = stepsHistory.any { it.date == LocalDate.now().toString() && it.goalReached }
+    var canFeed by remember{ mutableStateOf( petState?.lastFedDate != LocalDate.now().toString() && todayGoalReached)}
 
     Column(
         modifier = Modifier
@@ -91,6 +99,21 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
                 modifier = Modifier.weight(1f)
             ) {
                 Text("Goals")
+            }
+
+            if (canFeed) {
+                Button(
+                    onClick = {
+                        viewModel.viewModelScope.launch { viewModel.feedPet() }
+                        canFeed=false },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                ) {
+                    Text("Feed Pet")
+                }
+            } else if (!todayGoalReached) {
+                Text("Reach your goal to feed the pet!")
+            } else {
+                Text("Pet already fed today!")
             }
         }
 
