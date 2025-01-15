@@ -26,22 +26,10 @@ fun GoalsScreen(
     navController: NavHostController,
     onAddGoalClick: () -> Unit
 ) {
-    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+
     val goals by viewModel.goals.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
-
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                viewModel.addOrUpdateGoal(GoalEntity(0, 1, 0))
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,

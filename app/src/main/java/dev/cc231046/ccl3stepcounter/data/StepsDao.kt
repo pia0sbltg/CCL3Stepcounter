@@ -14,6 +14,9 @@ interface StepsDao {
     @Query("SELECT * FROM steps ORDER BY date DESC LIMIT 6")
     suspend fun getLastSixDays(): List<StepEntity>
 
+    @Query("SELECT * FROM steps ORDER BY date DESC LIMIT 1")
+    suspend fun getLastStepEntry(): StepEntity?
+
     @Query("SELECT * FROM steps")
     suspend fun getAllSteps(): List<StepEntity>?
 
@@ -35,6 +38,11 @@ interface StepsDao {
 
     @Query("DELETE FROM steps")
     suspend fun deleteEverything()
+
+    @Query("DElETE FROM steps WHERE date = :date")
+    suspend fun deleteToday(date:String){
+        println("Deleted TOday")
+    }
 
     @Query("UPDATE steps SET goalReached = :goalReached WHERE date = :date")
     suspend fun updateGoalReached(date: String, goalReached: Boolean)
