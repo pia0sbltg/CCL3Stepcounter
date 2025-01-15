@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import dev.cc231046.ccl3stepcounter.data.StepEntity
 
 @Dao
 interface StepsDao {
