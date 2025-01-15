@@ -140,14 +140,14 @@ fun GoalItem(goal: GoalEntity, onDeleteClick: () -> Unit) {
         ) {
             Column {
                 Text(
-                    text = "Day: ${getDayName(goal.dayOfWeek)}",
+                    text = DateUtils.getRelativeDayName(goal.dayOfWeek),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSecondary
                 )
                 Text(
-                    text = "Goal: ${goal.stepGoal} steps",
+                    text = "${goal.stepGoal} steps",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSecondary
+                    color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.7f)
                 )
             }
             IconButton(onClick = onDeleteClick) {
