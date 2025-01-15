@@ -37,6 +37,7 @@ class StepsViewModel(private val stepsDao: StepsDao, private val goalsDao: Goals
            stepsDao.deleteEverything()
             goalsDao.deleteEveryGoal()
             */
+            //stepsDao.deleteToday(LocalDate.now().toString())
             stepTracker.getOrInitializeInitialSteps()
             startCounting()
             checkDailyGoal()
@@ -86,6 +87,7 @@ class StepTracker(private val context: Context, private val stepsDao: StepsDao) 
     private val stepSensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
     private var initialStepCount: Int? = null
     private var onStepsUpdated: ((Int) -> Unit)? = null
+    private var calcTodaySteps:Int = 0
 
     suspend fun getOrInitializeInitialSteps(): Int {
         val today = LocalDate.now().toString()
@@ -126,15 +128,33 @@ class StepTracker(private val context: Context, private val stepsDao: StepsDao) 
                 if (initialStepCount == null) {
                     val storedSteps = stepsDao.getStepsForDate(today)
                     if (storedSteps == null) {
-                        initialStepCount = totalDeviceSteps
-                        stepsDao.insertOrUpdateSteps(
-                            StepEntity(
-                                date = today,
-                                initialStepCount = totalDeviceSteps,
-                                totalSteps = 0
+
+                        val yesterday = LocalDate.now().minusDays(1).toString()
+                        val yesterdaySteps = stepsDao.getStepsForDate(yesterday)
+
+                        println("Yesterday: $yesterdaySteps")
+
+                        if(yesterdaySteps!=null){
+                            calcTodaySteps = totalDeviceSteps - (yesterdaySteps.initialStepCount+yesterdaySteps.totalSteps)
+                            initialStepCount = totalDeviceSteps-calcTodaySteps
+                           /* stepsDao.insertOrUpdateSteps(
+                                StepEntity(
+                                    date = today,
+                                    initialStepCount = totalDeviceSteps,
+                                    totalSteps = calcTodaySteps
+                                )
+                            )*/
+                        }else {
+                            initialStepCount = totalDeviceSteps
+                            stepsDao.insertOrUpdateSteps(
+                                StepEntity(
+                                    date = today,
+                                    initialStepCount = totalDeviceSteps,
+                                    totalSteps = 0
+                                )
                             )
-                        )
-                        println("DEBUG: First-time initialization in onSensorChanged. InitialStepCount: $initialStepCount")
+                            println("DEBUG: First-time initialization in onSensorChanged. InitialStepCount: $initialStepCount")
+                        }
                     } else {
                         println(storedSteps)
                         initialStepCount = storedSteps.initialStepCount
@@ -144,7 +164,11 @@ class StepTracker(private val context: Context, private val stepsDao: StepsDao) 
 
                 // Calculate steps for today
 
-                val todaySteps = totalDeviceSteps - (initialStepCount?: totalDeviceSteps)
+
+                var todaySteps = totalDeviceSteps - (initialStepCount?: totalDeviceSteps)
+                if(calcTodaySteps>todaySteps){
+                    todaySteps=calcTodaySteps
+                }
 
                 println(todaySteps)
                 println(initialStepCount)

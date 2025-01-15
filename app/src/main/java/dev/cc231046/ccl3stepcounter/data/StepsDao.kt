@@ -39,6 +39,11 @@ interface StepsDao {
     @Query("DELETE FROM steps")
     suspend fun deleteEverything()
 
+    @Query("DElETE FROM steps WHERE date = :date")
+    suspend fun deleteToday(date:String){
+        println("Deleted TOday")
+    }
+
     @Query("UPDATE steps SET goalReached = :goalReached WHERE date = :date")
     suspend fun updateGoalReached(date: String, goalReached: Boolean)
 }
