@@ -45,8 +45,6 @@ class StepTrackingJobService: JobService(){
         }
         val goalsForToday = goalsDao.getGoalsForDay(LocalDate.now().dayOfWeek.value)
 
-        println(goalsForToday)
-
         if(storedSteps === null){
             withContext(Dispatchers.IO) {
                 stepsDao.insertOrUpdateSteps(
@@ -65,7 +63,6 @@ class StepTrackingJobService: JobService(){
             stepsDao.updateGoalReached(today, goalReached)
         }
 
-        updatePreviousDays(today, currentStepCount)
     }
 
 
@@ -90,16 +87,6 @@ class StepTrackingJobService: JobService(){
         return currentSteps
     }
 
-    private suspend fun updatePreviousDays(today: String, currentStepCount: Int){
-        val previousEntries = stepsDao.getAllSteps()
-
-        previousEntries?.forEach { entry ->
-            if (entry.date != today && entry.totalSteps == 0) {
-                val stepsForThatDay = currentStepCount - entry.initialStepCount
-                stepsDao.insertOrUpdateSteps(entry.copy(totalSteps = stepsForThatDay))
-            }
-        }
-    }
 
 }
 

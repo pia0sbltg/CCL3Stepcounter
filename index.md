@@ -25,8 +25,13 @@ Movemate stands alongside other popular fitness apps, but with a unique twist:
 
 While these apps provide excellent tracking features, Movemate goes beyond by incorporating gamification elements to keep users engaged and motivated.
 
-### Mockups and User Flow
-![Movemate App Mockup](assets/MainScreenMU.png "First Mockup")
+### Mockups 
+![Movemate App Mockup](assets/MainScreenMU.png "Main Screen")
+![Movemate App Mockup](assets/GoalScreenMU.png "Goal Overview Screen")
+![Movemate App Mockup](assets/AddGoalMU.png "Add a Goal Screen")
+
+### User Flow
+![Movemate App Mockup](assets/UserFlow.png "User Flow")
 
 ### Gamification
 We plan to add gamification features to make Movemate more fun and interactive. Instead of just showing your step count in a standard UI, Movemate introduces a **virtual pet** that thrives based on your activity:
