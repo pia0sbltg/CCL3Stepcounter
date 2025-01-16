@@ -77,6 +77,19 @@ class GoalsViewModel(private val goalsDao: GoalsDao) : ViewModel() {
         }
     }
 
+    fun editGoal(goal: GoalEntity) {
+        viewModelScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    goalsDao.insertGoal(goal)
+                    _goals.value = goalsDao.getAllGoals()
+                }
+            } catch (e: Exception) {
+                _error.value = "Failed to save goal: ${e.message}"
+            }
+        }
+    }
+
 
     fun deleteGoal(goal: GoalEntity) {
         viewModelScope.launch {
