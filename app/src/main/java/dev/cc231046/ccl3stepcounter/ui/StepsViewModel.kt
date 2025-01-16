@@ -24,9 +24,10 @@ class StepsViewModel(
     private val stepsDao: StepsDao,
     private val goalsDao: GoalsDao,
     private val petDao: PetDao,
-    private val applicationContext: Context) : ViewModel() {
+    private val applicationContext: Context
+) : ViewModel() {
 
-    private val stepTracker = StepTracker(applicationContext,stepsDao, goalsDao){
+    private val stepTracker = StepTracker(applicationContext, stepsDao, goalsDao) {
         loadStepHistory()
     }
     private val _currentSteps = MutableLiveData(0)
@@ -41,16 +42,17 @@ class StepsViewModel(
     private val _petState = MutableLiveData<PetEntity?>()
     val petState: LiveData<PetEntity?> = _petState
 
-
     init {
         viewModelScope.launch {
-           /*
-           stepsDao.deleteEverything()
-            goalsDao.deleteEveryGoal()
-            */
+            /*
+            stepsDao.deleteEverything()
+             goalsDao.deleteEveryGoal()
+             */
             //stepsDao.deleteToday(LocalDate.now().toString())
             stepTracker.getOrInitializeInitialSteps()
             loadPetState()
+            petDao.updatePetFeeds9()
+
             startCounting()
             checkDailyGoal()
             loadStepHistory()
@@ -69,61 +71,96 @@ class StepsViewModel(
         stepTracker.stopTracking()
     }
 
-    private suspend fun loadPetState() {
-        val pet = petDao.getPet() ?: PetEntity()
-        _petState.postValue(pet)
-    }
-
-    private suspend fun checkDailyGoal(){
+    private suspend fun checkDailyGoal() {
         val today = LocalDate.now().toString()
-        val todaySteps = stepsDao.getStepsForDate(today )
+        val todaySteps = stepsDao.getStepsForDate(today)
         val goalsForToday = goalsDao.getGoalsForDay(LocalDate.now().dayOfWeek.value)
 
-        if(todaySteps != null && goalsForToday.isNotEmpty()){
+        if (todaySteps != null && goalsForToday.isNotEmpty()) {
             val highestGoal = goalsForToday.maxOf { it.stepGoal }
             val goalReached = todaySteps.totalSteps >= highestGoal
-            stepsDao.updateGoalReached(today,goalReached)
-        }else{
-            stepsDao.updateGoalReached(today,false)
+            stepsDao.updateGoalReached(today, goalReached)
+        } else {
+            stepsDao.updateGoalReached(today, false)
         }
     }
 
-    private suspend fun loadStepHistory(){
+    private suspend fun loadStepHistory() {
         _stepHistory.postValue(stepsDao.getLastSixDays())
     }
 
     private suspend fun loadTodayGoal() {
-        _todayGoal.postValue(goalsDao.getGoalsForDay(LocalDate.now().dayOfWeek.value).maxOfOrNull { it.stepGoal } ?: 0)
+        _todayGoal.postValue(
+            goalsDao.getGoalsForDay(LocalDate.now().dayOfWeek.value).maxOfOrNull { it.stepGoal }
+                ?: 0)
+    }
+
+    private suspend fun loadPetState(){
+        withContext(Dispatchers.IO) {
+            var pet = petDao.getPet()
+            if (pet == null) {
+                pet = PetEntity(id = 1, currentStage = 1, feeds = 0, lastFedDate = "")
+                petDao.insertOrUpdatePet(pet)
+                println("DEBUG: Initialized Pet in DB: $pet")
+            }
+            withContext(Dispatchers.Main) {
+                _petState.value = pet
+            }
+        }
     }
 
     suspend fun feedPet() {
         val today = LocalDate.now().toString()
         val pet = petDao.getPet() ?: PetEntity()
 
-        if (pet.lastFedDate == today) return // Already fed today
+        if (pet.lastFedDate == today) {
+            println("DEBUG: PET ALREADY FED TODAY: $pet")
+            return
+        }
 
         val newFeeds = pet.feeds + 1
-        val newStage = if (newFeeds >= 10) pet.currentStage + 1 else pet.currentStage
+        val ogStage = pet.currentStage
+        //val newStage = if (newFeeds >= 10) 3 else pet.currentStage
+        val newStage =3
         val newFeedsReset = if (newFeeds >= 10) 0 else newFeeds
 
-        petDao.updatePet(
-            feeds = newFeedsReset,
-            currentStage = newStage,
-            lastFedDate = today
-        )
+        withContext(Dispatchers.IO) {
+            petDao.updatePet(
+                feeds = newFeedsReset,
+                currentStage = newStage,
+                lastFedDate = today
+            )
 
-        loadPetState()
+            if (newStage == 3) {
+                kotlinx.coroutines.delay(4000) // Wait for 4 seconds
+
+                petDao.updatePet(
+                    feeds = newFeedsReset,
+                    currentStage = ogStage,
+                    lastFedDate = today
+                )
+                println("DEBUG: Reverted to original stage: $ogStage")
+            }
+        }
+
+        loadPetState() // Refresh state in LiveData
     }
 
 }
 
-class StepTracker(private val context: Context, private val stepsDao: StepsDao, private val goalsDao: GoalsDao,private val onGoalUpdated: suspend () -> Unit) : SensorEventListener {
-    private val sensorManager: SensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+class StepTracker(
+    private val context: Context,
+    private val stepsDao: StepsDao,
+    private val goalsDao: GoalsDao,
+    private val onGoalUpdated: suspend () -> Unit
+) : SensorEventListener {
+    private val sensorManager: SensorManager =
+        context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
 
     private val stepSensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
     private var initialStepCount: Int? = null
     private var onStepsUpdated: ((Int) -> Unit)? = null
-    private var calcTodaySteps:Int = 0
+    private var calcTodaySteps: Int = 0
 
 
     suspend fun getOrInitializeInitialSteps(): Int {
@@ -165,10 +202,11 @@ class StepTracker(private val context: Context, private val stepsDao: StepsDao, 
                         val yesterday = LocalDate.now().minusDays(1).toString()
                         val yesterdaySteps = stepsDao.getStepsForDate(yesterday)
 
-                        if(yesterdaySteps!=null){
-                            calcTodaySteps = totalDeviceSteps - (yesterdaySteps.initialStepCount+yesterdaySteps.totalSteps)
-                            initialStepCount = totalDeviceSteps-calcTodaySteps
-                        }else {
+                        if (yesterdaySteps != null) {
+                            calcTodaySteps =
+                                totalDeviceSteps - (yesterdaySteps.initialStepCount + yesterdaySteps.totalSteps)
+                            initialStepCount = totalDeviceSteps - calcTodaySteps
+                        } else {
                             initialStepCount = totalDeviceSteps
                             stepsDao.insertOrUpdateSteps(
                                 StepEntity(
@@ -186,9 +224,9 @@ class StepTracker(private val context: Context, private val stepsDao: StepsDao, 
                     }
                 }
                 // Calculate steps for today
-                var todaySteps = totalDeviceSteps - (initialStepCount?: totalDeviceSteps)
-                if(calcTodaySteps>todaySteps){
-                    todaySteps=calcTodaySteps
+                var todaySteps = totalDeviceSteps - (initialStepCount ?: totalDeviceSteps)
+                if (calcTodaySteps > todaySteps) {
+                    todaySteps = calcTodaySteps
                 }
 
                 println(todaySteps)

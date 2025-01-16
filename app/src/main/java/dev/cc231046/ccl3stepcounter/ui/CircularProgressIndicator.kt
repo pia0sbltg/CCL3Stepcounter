@@ -32,7 +32,9 @@ import kotlin.math.min
 fun CircularProgressWithDog(
     steps: Int,
     goalSteps: Int,
+    dogVersion: Int?,
     modifier: Modifier = Modifier
+
 ) {
     var progressValue by remember { mutableFloatStateOf(0f) }
 
@@ -40,9 +42,19 @@ fun CircularProgressWithDog(
     val screenWidth = configuration.screenWidthDp.dp
     val size = min(screenWidth.value * 0.7f, 250f).dp
     val dogSize = size.value * 0.8f  // Increased from 0.4f to 0.6f
-
     // Context for ImageLoader
     val context = LocalContext.current
+
+    val currentAnim = when (dogVersion) {
+        2 -> R.drawable.dog_sleeping
+        3 -> R.drawable.dog_workout
+        else -> R.drawable.dog_animation
+    }
+
+
+
+    //val currentAnim = R.drawable.dog_sleeping
+    println(dogVersion)
 
     // Create ImageLoader that can handle GIFs
     val imageLoader = remember {
@@ -53,6 +65,7 @@ fun CircularProgressWithDog(
             }
             .build()
     }
+
 
     LaunchedEffect(steps, goalSteps) {
         progressValue = if (goalSteps > 0) {
@@ -107,7 +120,7 @@ fun CircularProgressWithDog(
             Image(
                 painter = rememberAsyncImagePainter(
                     ImageRequest.Builder(context)
-                        .data(R.drawable.dog_animation)
+                        .data(currentAnim)
                         .size(Size.ORIGINAL) // Maintain original GIF size
                         .build(),
                     imageLoader = imageLoader

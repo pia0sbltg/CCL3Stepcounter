@@ -71,7 +71,7 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
     val petState by viewModel.petState.observeAsState()
 
     val todayGoalReached = stepsHistory.any { it.date == LocalDate.now().toString() && it.goalReached }
-    var canFeed by remember{ mutableStateOf( petState?.lastFedDate != LocalDate.now().toString() && todayGoalReached)}
+    val canFeed = todayGoalReached && petState?.lastFedDate != LocalDate.now().toString()
 
     Column(
         modifier = Modifier
@@ -85,6 +85,7 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
         CircularProgressWithDog(
             steps = steps,
             goalSteps = todayGoal,
+            dogVersion = petState?.currentStage,
             modifier = Modifier.weight(1f)
         )
 
@@ -104,8 +105,7 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
             if (canFeed) {
                 Button(
                     onClick = {
-                        viewModel.viewModelScope.launch { viewModel.feedPet() }
-                        canFeed=false },
+                        viewModel.viewModelScope.launch { viewModel.feedPet() }},
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
                     Text("Feed Pet")
