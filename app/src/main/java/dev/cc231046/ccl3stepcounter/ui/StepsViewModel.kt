@@ -19,6 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
+import java.time.LocalTime
 
 class StepsViewModel(
     private val stepsDao: StepsDao,
@@ -50,13 +51,12 @@ class StepsViewModel(
              */
             //stepsDao.deleteToday(LocalDate.now().toString())
             stepTracker.getOrInitializeInitialSteps()
-            loadPetState()
-            petDao.updatePetFeeds9()
-
             startCounting()
             checkDailyGoal()
             loadStepHistory()
             loadTodayGoal()
+            loadPetState()
+            updateAnimationVersionBasedOnTime()
         }
     }
 
@@ -64,11 +64,6 @@ class StepsViewModel(
         stepTracker.startTracking { updatedSteps ->
             _currentSteps.postValue(updatedSteps) // Update LiveData with new step count
         }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        stepTracker.stopTracking()
     }
 
     private suspend fun checkDailyGoal() {
@@ -120,23 +115,27 @@ class StepsViewModel(
 
         val newFeeds = pet.feeds + 1
         val ogStage = pet.currentStage
-        //val newStage = if (newFeeds >= 10) 3 else pet.currentStage
-        val newStage =3
+        val newStage = if (newFeeds >= 10) 3 else pet.currentStage
+        val newCoins = pet.coins +1
+        //val newStage =2
         val newFeedsReset = if (newFeeds >= 10) 0 else newFeeds
 
         withContext(Dispatchers.IO) {
             petDao.updatePet(
                 feeds = newFeedsReset,
                 currentStage = newStage,
+                coins= newCoins,
                 lastFedDate = today
             )
 
             if (newStage == 3) {
-                kotlinx.coroutines.delay(4000) // Wait for 4 seconds
+                loadPetState()
+                kotlinx.coroutines.delay(4000)
 
                 petDao.updatePet(
                     feeds = newFeedsReset,
                     currentStage = ogStage,
+                    coins = newCoins,
                     lastFedDate = today
                 )
                 println("DEBUG: Reverted to original stage: $ogStage")
@@ -146,6 +145,39 @@ class StepsViewModel(
         loadPetState() // Refresh state in LiveData
     }
 
+    private fun updateAnimationVersionBasedOnTime(){
+        viewModelScope.launch {
+            while (true){
+                val oldAnimVersion = _petState.value?.currentStage
+                val currentTime = LocalTime.now()
+                val newAnimVersion = if(currentTime.isAfter(LocalTime.of(22,0))|| currentTime.isBefore(LocalTime.of(8,0))){
+                    2 //sleepy dog
+                }else{
+                    1
+                }
+                if(oldAnimVersion != newAnimVersion){
+                    withContext(Dispatchers.Main){
+                        _petState.value?.let { petDao.updatePet(
+                            feeds =  it.feeds,
+                            currentStage = newAnimVersion,
+                            coins = it.coins,
+                            lastFedDate = it.lastFedDate )
+                        }
+
+                        loadPetState()
+                    }
+                }
+
+                kotlinx.coroutines.delay(60_000)
+
+            }
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        stepTracker.stopTracking()
+    }
 }
 
 class StepTracker(

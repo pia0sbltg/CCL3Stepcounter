@@ -29,10 +29,11 @@ import dev.cc231046.ccl3stepcounter.R
 import kotlin.math.min
 
 @Composable
-fun CircularProgressWithDog(
+fun CircularProgressWithPet(
     steps: Int,
     goalSteps: Int,
-    dogVersion: Int?,
+    animalType: String, // The selected animal type (e.g., "dog", "cat", etc.)
+    petState: Int?,
     modifier: Modifier = Modifier
 
 ) {
@@ -41,21 +42,39 @@ fun CircularProgressWithDog(
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
     val size = min(screenWidth.value * 0.7f, 250f).dp
-    val dogSize = size.value * 0.8f  // Increased from 0.4f to 0.6f
+    val petSize = size.value * 0.8f
+
     // Context for ImageLoader
     val context = LocalContext.current
 
-    val currentAnim = when (dogVersion) {
-        2 -> R.drawable.dog_sleeping
-        3 -> R.drawable.dog_workout
-        else -> R.drawable.dog_animation
+    val currentAnim by remember(animalType, petState) {
+        derivedStateOf {
+            when (animalType) {
+                "dog" -> when (petState) {
+                    2 -> R.drawable.dog_sleeping
+                    3 -> R.drawable.dog_workout
+                    else -> R.drawable.dog_animation
+                }
+                "cat" -> when (petState) {
+                    //2 -> R.drawable.cat_sleeping
+                  //  3 -> R.drawable.cat_workout
+                  else -> R.drawable.dog_animation
+                }
+                /*
+                "rabbit" -> when (petState) {
+                    2 -> R.drawable.rabbit_sleeping
+                    3 -> R.drawable.rabbit_workout
+                    else -> R.drawable.rabbit_animation
+                }
+
+                 */
+                else -> R.drawable.dog_animation // Default to the dog animation
+            }
+        }
     }
 
 
-
-    //val currentAnim = R.drawable.dog_sleeping
-    println(dogVersion)
-
+    println("ANIMAL TYPE: $animalType, STATE: $petState")
     // Create ImageLoader that can handle GIFs
     val imageLoader = remember {
         ImageLoader.Builder(context)
@@ -126,7 +145,7 @@ fun CircularProgressWithDog(
                     imageLoader = imageLoader
                 ),
                 contentDescription = "Dog Animation",
-                modifier = Modifier.size(dogSize.dp)
+                modifier = Modifier.size(petSize.dp)
             )
         }
 
