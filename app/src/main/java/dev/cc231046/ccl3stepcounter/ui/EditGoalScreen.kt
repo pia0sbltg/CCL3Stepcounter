@@ -2,11 +2,13 @@ package dev.cc231046.ccl3stepcounter.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
@@ -31,6 +33,7 @@ fun EditGoalScreen(viewModel: GoalsViewModel, onGoalSaved: () -> Unit) {
     val stepGoal = remember { mutableStateOf("") }
     val isDropdownExpanded = remember { mutableStateOf(false) }
     val snackbarMessage = remember { mutableStateOf("") }
+    val applyToAllDays = remember { mutableStateOf(false) }
 
     val dayOptions = DateUtils.getDropdownDayOptions()
 
@@ -47,41 +50,44 @@ fun EditGoalScreen(viewModel: GoalsViewModel, onGoalSaved: () -> Unit) {
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(
-            onClick = { isDropdownExpanded.value = true },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.secondary,
-                contentColor = MaterialTheme.colorScheme.onSecondary
-            )
-        ) {
-            Text(DateUtils.getRelativeDayName(dayOfWeek.intValue))
-        }
+        if(!applyToAllDays.value) {
 
-        DropdownMenu(
-            expanded = isDropdownExpanded.value,
-            onDismissRequest = { isDropdownExpanded.value = false }
-        ) {
-            dayOptions.forEach { (day, label) ->
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = label,
-                            color = if (day == dayOfWeek.intValue)
-                                MaterialTheme.colorScheme.primary
-                            else
-                                MaterialTheme.colorScheme.onBackground
-                        )
-                    },
-                    onClick = {
-                        dayOfWeek.intValue = day
-                        isDropdownExpanded.value = false
-                    }
+            Button(
+                onClick = { isDropdownExpanded.value = true },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    contentColor = MaterialTheme.colorScheme.onSecondary
                 )
+            ) {
+                Text(DateUtils.getRelativeDayName(dayOfWeek.intValue))
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            DropdownMenu(
+                expanded = isDropdownExpanded.value,
+                onDismissRequest = { isDropdownExpanded.value = false }
+            ) {
+                dayOptions.forEach { (day, label) ->
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = label,
+                                color = if (day == dayOfWeek.intValue)
+                                    MaterialTheme.colorScheme.primary
+                                else
+                                    MaterialTheme.colorScheme.onBackground
+                            )
+                        },
+                        onClick = {
+                            dayOfWeek.intValue = day
+                            isDropdownExpanded.value = false
+                        }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+        }
 
         OutlinedTextField(
             value = stepGoal.value,
@@ -102,15 +108,27 @@ fun EditGoalScreen(viewModel: GoalsViewModel, onGoalSaved: () -> Unit) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            androidx.compose.material3.Checkbox(
+                checked = applyToAllDays.value,
+                onCheckedChange = { applyToAllDays.value = it }
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Apply to all days")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         Button(
             onClick = {
                 if (stepGoal.value.isNotEmpty()) {
-                    val goal = GoalEntity(
-                        dayOfWeek = dayOfWeek.intValue,
-                        stepGoal = stepGoal.value.toInt()
-                    )
                     viewModel.addOrUpdateGoal(
-                        goal,
+                        stepGoal =stepGoal.value.toInt(),
+                        dayOfWeek = dayOfWeek.intValue,
+                        applyToAllDays.value,
                         onConflict = { message -> snackbarMessage.value = message },
                         onSuccess = {
                             snackbarMessage.value = "Goal saved successfully!"

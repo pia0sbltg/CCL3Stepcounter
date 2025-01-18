@@ -5,7 +5,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -87,7 +89,8 @@ fun GoalsScreen(
                     items(goals) { goal ->
                         GoalItem(
                             goal = goal,
-                            onDeleteClick = { viewModel.deleteGoal(goal) }
+                            onDeleteClick = { viewModel.deleteGoal(goal) },
+                            onSaveClick = { updatedGoal -> viewModel.editGoal(updatedGoal) }
                         )
                     }
                 }
@@ -108,9 +111,12 @@ fun GoalsScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
-fun GoalItem(goal: GoalEntity, onDeleteClick: () -> Unit) {
+fun GoalItem(goal: GoalEntity, onDeleteClick: () -> Unit, onSaveClick: (GoalEntity) -> Unit) {
+    var isEditing by remember { mutableStateOf(false) }
+    var editedStepGoal by remember { mutableStateOf(goal.stepGoal.toString()) }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -126,22 +132,61 @@ fun GoalItem(goal: GoalEntity, onDeleteClick: () -> Unit) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = DateUtils.getRelativeDayName(goal.dayOfWeek),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSecondary
                 )
-                Text(
-                    text = "${goal.stepGoal} steps",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.7f)
-                )
+                if (isEditing) {
+                    OutlinedTextField(
+                        value = editedStepGoal,
+                        onValueChange = { if (it.all { char -> char.isDigit() }) editedStepGoal = it },
+                        label = { Text("Steps") },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.secondary,
+                            focusedLabelColor = MaterialTheme.colorScheme.primary,
+                            unfocusedLabelColor = MaterialTheme.colorScheme.secondary
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                } else {
+                    Text(
+                        text = "${goal.stepGoal} steps",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.7f)
+                    )
+                }
             }
+
+            if (isEditing) {
+                IconButton(onClick = {
+                    if (editedStepGoal.isNotEmpty()) {
+                        onSaveClick(goal.copy(stepGoal = editedStepGoal.toInt()))
+                        isEditing = false
+                    }
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = "Save Goal",
+                        tint = MaterialTheme.colorScheme.onSecondary
+                    )
+                }
+            } else {
+                IconButton(onClick = { isEditing = true }) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Edit Goal",
+                        tint = MaterialTheme.colorScheme.onSecondary
+                    )
+                }
+            }
+
             IconButton(onClick = onDeleteClick) {
                 Icon(
-                    Icons.Default.Delete,
-                    "Delete Goal",
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete Goal",
                     tint = MaterialTheme.colorScheme.onSecondary
                 )
             }

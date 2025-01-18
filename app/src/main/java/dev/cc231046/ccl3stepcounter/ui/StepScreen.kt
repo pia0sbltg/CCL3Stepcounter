@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -18,21 +17,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import dev.cc231046.ccl3stepcounter.data.GoalsDao
+import dev.cc231046.ccl3stepcounter.data.OwnedPetsDao
 import dev.cc231046.ccl3stepcounter.data.PetDao
 import dev.cc231046.ccl3stepcounter.data.StepEntity
 import dev.cc231046.ccl3stepcounter.data.StepsDao
@@ -42,12 +37,13 @@ import java.time.LocalDate
 enum class Routes(val route: String) {
     Main("Steps"),
     Goals("Goals"),
-    Edit("Edit_Goal")
+    Edit("Edit_Goal"),
+    Shop("Shop")
 
 }
 
 @Composable
-fun AppNavigation(stepsDao: StepsDao,goalsDao: GoalsDao, petDao: PetDao, navController: NavHostController, modifier: Modifier){
+fun AppNavigation(stepsDao: StepsDao,goalsDao: GoalsDao, petDao: PetDao, ownedPetsDao: OwnedPetsDao, navController: NavHostController, modifier: Modifier){
     val context = LocalContext.current
 
     NavHost(navController =navController, startDestination = Routes.Main.name) {
@@ -60,6 +56,10 @@ fun AppNavigation(stepsDao: StepsDao,goalsDao: GoalsDao, petDao: PetDao, navCont
         composable(Routes.Edit.name){
             EditGoalScreen(viewModel = GoalsViewModel(goalsDao), onGoalSaved = {navController.popBackStack()})
         }
+        composable(Routes.Shop.name){
+            ShopScreen(viewModel = ShopViewModel(petDao, ownedPetsDao), navController)
+        }
+
     }
 }
 
@@ -71,7 +71,7 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
     val petState by viewModel.petState.observeAsState()
 
     val todayGoalReached = stepsHistory.any { it.date == LocalDate.now().toString() && it.goalReached }
-    var canFeed by remember{ mutableStateOf( petState?.lastFedDate != LocalDate.now().toString() && todayGoalReached)}
+    var canFeed = todayGoalReached && petState?.lastFedDate != LocalDate.now().toString()
 
     Column(
         modifier = Modifier
@@ -80,11 +80,27 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(onClick = { navController.navigate("Shop") }) {
+                Text("Shop")
+            }
+
+            Text("Coins: ${petState?.coins ?: 0}", style = MaterialTheme.typography.bodyLarge)
+        }
+
         Spacer(modifier = Modifier.height(20.dp))
 
-        CircularProgressWithDog(
+        CircularProgressWithPet(
             steps = steps,
             goalSteps = todayGoal,
+            animalType = petState?.selectedAnimal ?: "dog",
+            petState = petState?.currentStage,
             modifier = Modifier.weight(1f)
         )
 
@@ -105,7 +121,7 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
                 Button(
                     onClick = {
                         viewModel.viewModelScope.launch { viewModel.feedPet() }
-                        canFeed=false },
+                              canFeed= false },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
                     Text("Feed Pet")

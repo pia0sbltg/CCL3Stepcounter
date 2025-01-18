@@ -41,19 +41,34 @@ class GoalsViewModel(private val goalsDao: GoalsDao) : ViewModel() {
         }
     }
 
-    fun addOrUpdateGoal(goal: GoalEntity, onConflict: (String) -> Unit, onSuccess: () -> Unit) {
+    fun addOrUpdateGoal(stepGoal: Int, dayOfWeek: Int, applyToAllDays: Boolean, onConflict: (String) -> Unit, onSuccess: () -> Unit) {
         viewModelScope.launch {
             try {
                 withContext(Dispatchers.IO) {
-                    val existingGoal = goalsDao.getGoalForDay(goal.dayOfWeek)
-                    if (existingGoal != null) {
-                        // Notify UI of the conflict
-                        onConflict("A goal already exists for this day.")
-                    } else {
-                        goalsDao.insertGoal(goal)
-                        _goals.value = goalsDao.getAllGoals()
+                    if(applyToAllDays){
+                        for (day in 1..7) {
+                            val goal = GoalEntity(dayOfWeek = day, stepGoal = stepGoal)
+                            goalsDao.insertGoal(goal)
+                        }
+                    }else {
+                        val existingGoal = goalsDao.getGoalForDay(dayOfWeek)
+                        if (existingGoal != null) {
+                            // Notify UI of the conflict
+                            withContext(Dispatchers.Main) {
+                                onConflict("A goal already exists for this day.")
+                            }
+                            return@withContext
+                        } else {
+                            val goal = GoalEntity(dayOfWeek = dayOfWeek, stepGoal = stepGoal)
+                            goalsDao.insertGoal(goal)
+                        }
+                    }
+                    val allGoals = goalsDao.getAllGoals()
+                    withContext(Dispatchers.Main) {
+                        _goals.value = allGoals
                         onSuccess()
                     }
+
                 }
             } catch (e: Exception) {
                 // Notify UI of any general error
@@ -62,6 +77,18 @@ class GoalsViewModel(private val goalsDao: GoalsDao) : ViewModel() {
         }
     }
 
+    fun editGoal(goal: GoalEntity) {
+        viewModelScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    goalsDao.insertGoal(goal)
+                    _goals.value = goalsDao.getAllGoals()
+                }
+            } catch (e: Exception) {
+                _error.value = "Failed to save goal: ${e.message}"
+            }
+        }
+    }
 
 
     fun deleteGoal(goal: GoalEntity) {

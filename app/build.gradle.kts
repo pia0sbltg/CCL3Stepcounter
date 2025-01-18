@@ -59,6 +59,10 @@ dependencies {
     implementation(libs.places)
     ksp("androidx.room:room-compiler:2.5.0")
 
+    implementation("io.coil-kt:coil:2.4.0")
+    implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation("io.coil-kt:coil-gif:2.4.0")
+
     implementation("androidx.work:work-runtime-ktx:2.8.1")
 
 
