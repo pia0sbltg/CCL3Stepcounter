@@ -27,6 +27,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import dev.cc231046.ccl3stepcounter.data.GoalsDao
+import dev.cc231046.ccl3stepcounter.data.OwnedPetsDao
 import dev.cc231046.ccl3stepcounter.data.PetDao
 import dev.cc231046.ccl3stepcounter.data.StepEntity
 import dev.cc231046.ccl3stepcounter.data.StepsDao
@@ -42,7 +43,7 @@ enum class Routes(val route: String) {
 }
 
 @Composable
-fun AppNavigation(stepsDao: StepsDao,goalsDao: GoalsDao, petDao: PetDao, navController: NavHostController, modifier: Modifier){
+fun AppNavigation(stepsDao: StepsDao,goalsDao: GoalsDao, petDao: PetDao, ownedPetsDao: OwnedPetsDao, navController: NavHostController, modifier: Modifier){
     val context = LocalContext.current
 
     NavHost(navController =navController, startDestination = Routes.Main.name) {
@@ -56,7 +57,7 @@ fun AppNavigation(stepsDao: StepsDao,goalsDao: GoalsDao, petDao: PetDao, navCont
             EditGoalScreen(viewModel = GoalsViewModel(goalsDao), onGoalSaved = {navController.popBackStack()})
         }
         composable(Routes.Shop.name){
-            ShopScreen(viewModel = ShopViewModel(petDao), navController)
+            ShopScreen(viewModel = ShopViewModel(petDao, ownedPetsDao), navController)
         }
 
     }

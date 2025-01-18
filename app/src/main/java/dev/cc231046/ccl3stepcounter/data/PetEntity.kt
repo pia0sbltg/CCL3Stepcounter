@@ -10,5 +10,5 @@ data class PetEntity(
     val selectedAnimal: String = "dog",
     val currentStage: Int = 1,
     val feeds: Int = 0,
-    val lastFedDate: String = "" // Last feed date
+    val lastFedDate: String = "",
 )
