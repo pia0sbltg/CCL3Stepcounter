@@ -43,6 +43,7 @@ We plan to add gamification features to make Movemate more fun and interactive. 
 With these features, Movemate turns step tracking into an engaging, goal-oriented experience.
 
 ### Heuristic Evaluation and Usability Test design
-[Notion page] (https://freckle-buckthorn-932.notion.site/Usability-Test-Movemate-17fff580d2d2806ea7d7e71cd7020bc4)
+
+[Notion page](https://freckle-buckthorn-932.notion.site/Usability-Test-Movemate-17fff580d2d2806ea7d7e71cd7020bc4)
 
 ---
