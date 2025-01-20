@@ -10,5 +10,6 @@ data class StepEntity(
     val date: String, // Format: YYYY-MM-DD
     val initialStepCount: Int,
     val totalSteps: Int,
-    val goalReached: Boolean = false
+    val goalReached: Boolean = false,
+
 )

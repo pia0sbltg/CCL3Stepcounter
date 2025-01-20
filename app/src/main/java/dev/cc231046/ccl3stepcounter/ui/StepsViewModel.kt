@@ -23,7 +23,7 @@ import java.time.LocalTime
 
 class StepsViewModel(
     private val stepsDao: StepsDao,
-    private val goalsDao: GoalsDao,
+    val goalsDao: GoalsDao,
     private val petDao: PetDao,
     private val applicationContext: Context
 ) : ViewModel() {
@@ -115,7 +115,7 @@ class StepsViewModel(
 
         val newFeeds = pet.feeds + 1
         val ogStage = pet.currentStage
-        val newStage = if (newFeeds >= 10) 3 else pet.currentStage
+        val newStage = 3
         val newCoins = pet.coins +1
         //val newStage =2
         val newFeedsReset = if (newFeeds >= 10) 0 else newFeeds
