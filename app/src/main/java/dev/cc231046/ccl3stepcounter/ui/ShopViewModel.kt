@@ -65,7 +65,7 @@ class ShopViewModel (private val petDao: PetDao, private val ownedPetsDao: Owned
         return when (animal.lowercase(Locale.getDefault())) {
             "dog" -> R.drawable.dog_animation
             "cat" -> R.drawable.cat_animation
-            //  "rabbit" -> R.drawable.rabbit_animation
+            "rabbit" -> R.drawable.rabbit_animation
             else -> R.drawable.dog_animation // Default to dog animation
         }
     }

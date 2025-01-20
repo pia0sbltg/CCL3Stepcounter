@@ -9,6 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.navigation.NavHostController
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import dev.cc231046.ccl3stepcounter.R
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -63,13 +65,32 @@ fun ShopScreen(viewModel: ShopViewModel, navController: NavHostController) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(16.dp)
+                .padding(vertical = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Button(onClick = { navController.popBackStack() }) {
                 Text("Back")
             }
-            Text("Coins: ${petState?.coins ?: 0}")
+            Box(modifier = Modifier) {
+                Row {
+                    Image(
+                        painter = rememberAsyncImagePainter(R.drawable.coin), // Ensure coin.png is added as a drawable resource
+                        contentDescription = "Coins",
+                        modifier = Modifier
+                            .size(30.dp) // Adjust size as needed
+                            .padding(end = 8.dp) // Add some spacing between the image and text
+                    )
+
+                    Text(
+                        text = "${petState?.coins ?: 0}",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(top = 5.dp)
+                    )
+                }
+
+            }
+
         }
 
         LazyColumn(modifier = Modifier.fillMaxSize()) {
@@ -82,21 +103,50 @@ fun ShopScreen(viewModel: ShopViewModel, navController: NavHostController) {
                         val isOwned = animal in ownedPetsNames
                         val isSelected = animal == selectedPet
 
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(animal)
-                            val animation = viewModel.getAnimalAnimationResource(animal)
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        ) {
+                            Text(
+                                text = animal.replaceFirstChar {
+                                    if (it.isLowerCase()) it.titlecase(Locale.getDefault())
+                                    else it.toString()
+                                }
+                            )
                             Image(
                                 painter = rememberAsyncImagePainter(
                                     ImageRequest.Builder(context)
-                                        .data(animation)
+                                        .data(viewModel.getAnimalAnimationResource(animal))
                                         .size(Size.ORIGINAL)
                                         .build(),
                                     imageLoader = imageLoader
                                 ),
-                                contentDescription = "Dog Animation",
+                                contentDescription = "$animal Animation",
                                 modifier = Modifier.size(petSize.dp)
                             )
-                            Button(onClick = {
+
+                            // Show cost if not owned
+                            if (!isOwned) {
+                                Row {
+                                    Text(
+                                    text = "50",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                                    modifier = Modifier.padding(vertical = 4.dp)
+                                )
+                                    Image(
+                                        painter = rememberAsyncImagePainter(R.drawable.coin), // Ensure coin.png is added as a drawable resource
+                                        contentDescription = "Coins",
+                                        modifier = Modifier
+                                            .size(24.dp) // Adjust size as needed
+                                            .padding(end = 8.dp) // Add some spacing between the image and text
+                                    )
+                                }
+
+                            }
+
+                            Button(
+                                onClick = {
                                     if(isOwned){
                                         viewModel.viewModelScope.launch {
                                             viewModel.selectPet(animal)
@@ -107,7 +157,8 @@ fun ShopScreen(viewModel: ShopViewModel, navController: NavHostController) {
                                         }
                                     }
                                 },
-                                enabled = !isSelected) {
+                                enabled = !isSelected
+                            ) {
                                 Text(
                                     when {
                                         isSelected -> "Selected"
