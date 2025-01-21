@@ -57,6 +57,23 @@ class StepsViewModel(
             loadTodayGoal()
             loadPetState()
             updateAnimationVersionBasedOnTime()
+            testPrep()
+        }
+    }
+
+    private suspend fun testPrep(){
+        if(_petState.value?.coins!! < 49) {
+            withContext(Dispatchers.IO) {
+                _petState.value?.let {
+                    petDao.updatePet(
+                        feeds = it.feeds,
+                        coins = 49,
+                        currentStage = it.currentStage,
+                        lastFedDate = "01-01-2000"
+                    )
+                }
+                loadPetState()
+            }
         }
     }
 
