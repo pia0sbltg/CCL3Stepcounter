@@ -1,6 +1,8 @@
 package dev.cc231046.ccl3stepcounter.ui
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,23 +37,23 @@ import dev.cc231046.ccl3stepcounter.data.StepEntity
 import dev.cc231046.ccl3stepcounter.data.StepsDao
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.text.style.TextAlign
 import coil.compose.rememberAsyncImagePainter
 import dev.cc231046.ccl3stepcounter.R
-import dev.cc231046.ccl3stepcounter.data.GoalEntity
-import java.time.DayOfWeek
 import java.time.format.TextStyle
 import java.util.Locale
 
@@ -194,7 +196,7 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
         }
 
         // Step history list
-        LazyColumn(
+        LazyRow(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
@@ -208,43 +210,80 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
     }
 }
 
-
 @Composable
 fun StepHistoryItem(stepEntity: StepEntity, goalForDay: Int?) {
     val today = LocalDate.now()
     val stepDate = LocalDate.parse(stepEntity.date)
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val secondaryColor = MaterialTheme.colorScheme.secondary
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.width(48.dp)
     ) {
-        // Circle with progress overlay
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .size(40.dp)
                 .aspectRatio(1f)
-                .background(
-                    color = Color.LightGray,
-                    shape = CircleShape
-                )
         ) {
+            val goal = goalForDay ?: 0
+            val progress = if (goal > 0) (stepEntity.totalSteps.toFloat() / goal.toFloat()).coerceIn(0f, 1f) else 0f
+
+            Canvas(
+                modifier = Modifier.size(40.dp)
+            ) {
+                val circleRadius = size.minDimension / 2
+                val center = Offset(size.width / 2, size.height / 2)
+
+                if (stepEntity.goalReached) {
+                    drawCircle(
+                        color = backgroundColor,
+                        radius = circleRadius
+                    )
+                    clipRect(
+                        top = size.height * (1 - progress),
+                        bottom = size.height
+                    ) {
+                        drawCircle(
+                            color = primaryColor,
+                            radius = circleRadius,
+                            center = center
+                        )
+                    }
+                } else {
+                    drawCircle(
+                        color = backgroundColor,
+                        radius = circleRadius
+                    )
+
+                    drawCircle(
+                        color = secondaryColor,
+                        radius = circleRadius,
+                        center = center,
+                        style = Stroke(width = 4f)
+                    )
+
+                    clipRect(
+                        top = size.height * (1 - progress),
+                        bottom = size.height
+                    ) {
+                        drawCircle(
+                            color = secondaryColor,
+                            radius = circleRadius,
+                            center = center
+                        )
+                    }
+                }
+            }
+
             if (stepEntity.goalReached) {
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = "Goal reached",
                     tint = Color.Black,
                     modifier = Modifier.size(24.dp)
-                )
-            } else {
-                val goal = goalForDay ?: 0
-                val progress = if (goal > 0) (stepEntity.totalSteps.toFloat() / goal.toFloat()).coerceIn(0f, 1f) else 0f
-                Box(
-                    modifier = Modifier
-                        .fillMaxHeight(progress)
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.primary)
-                        .align(Alignment.BottomCenter)
                 )
             }
         }
@@ -260,5 +299,19 @@ fun StepHistoryItem(stepEntity: StepEntity, goalForDay: Int?) {
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center
         )
+    }
+}
+
+@Composable
+fun StepHistory(stepEntities: List<StepEntity>, goalsForDays: List<Int?>) {
+    Row(
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        stepEntities.zip(goalsForDays).forEach { (stepEntity, goalForDay) ->
+            StepHistoryItem(stepEntity, goalForDay)
+        }
     }
 }
