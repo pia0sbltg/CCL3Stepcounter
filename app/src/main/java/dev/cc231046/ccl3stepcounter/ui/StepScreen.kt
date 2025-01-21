@@ -38,15 +38,22 @@ import java.time.LocalDate
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.text.style.TextAlign
 import coil.compose.rememberAsyncImagePainter
 import dev.cc231046.ccl3stepcounter.R
+import dev.cc231046.ccl3stepcounter.data.GoalEntity
 import java.time.DayOfWeek
+import java.time.format.TextStyle
+import java.util.Locale
 
 enum class Routes(val route: String) {
     Main("Steps"),
@@ -87,10 +94,19 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
     val todayGoalReached = stepsHistory.any { it.date == LocalDate.now().toString() && it.goalReached }
     var canFeed = todayGoalReached && petState?.lastFedDate != LocalDate.now().toString()
 
+    val stepHistoryGoals = remember { mutableStateListOf<Int?>() }
+
+    LaunchedEffect(stepsHistory) {
+        stepsHistory.forEach { stepEntity ->
+            val goalForDay = viewModel.goalsDao.getGoalsForDay(LocalDate.parse(stepEntity.date).dayOfWeek.value).maxOfOrNull { it.stepGoal }
+            stepHistoryGoals.add(goalForDay)
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 16.dp),
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Top row with Shop button and coins
@@ -184,8 +200,8 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            items(stepsHistory) { stepEntity ->
-                StepHistoryItem(stepEntity)
+            items(stepsHistory.zip(stepHistoryGoals)) { (stepEntity, goalForDay) ->
+                StepHistoryItem(stepEntity, goalForDay)
                 Spacer(modifier = Modifier.height(8.dp))
             }
         }
@@ -194,22 +210,22 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
 
 
 @Composable
-fun StepHistoryItem(stepEntity: StepEntity) {
+fun StepHistoryItem(stepEntity: StepEntity, goalForDay: Int?) {
+    val today = LocalDate.now()
+    val stepDate = LocalDate.parse(stepEntity.date)
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.width(48.dp)
     ) {
-        // Circle with checkmark
+        // Circle with progress overlay
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .size(40.dp)
                 .aspectRatio(1f)
                 .background(
-                    color = if (stepEntity.goalReached)
-                        MaterialTheme.colorScheme.primary // Light green for completed
-                    else
-                        MaterialTheme.colorScheme.secondary, // Light blue-grey for incomplete
+                    color = Color.LightGray,
                     shape = CircleShape
                 )
         ) {
@@ -220,6 +236,16 @@ fun StepHistoryItem(stepEntity: StepEntity) {
                     tint = Color.Black,
                     modifier = Modifier.size(24.dp)
                 )
+            } else {
+                val goal = goalForDay ?: 0
+                val progress = if (goal > 0) (stepEntity.totalSteps.toFloat() / goal.toFloat()).coerceIn(0f, 1f) else 0f
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight(progress)
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.primary)
+                        .align(Alignment.BottomCenter)
+                )
             }
         }
 
@@ -227,31 +253,12 @@ fun StepHistoryItem(stepEntity: StepEntity) {
 
         // Day text
         Text(
-            text = when (LocalDate.parse(stepEntity.date).dayOfWeek) {
-                DayOfWeek.MONDAY -> "Mo"
-                DayOfWeek.TUESDAY -> "Tue"
-                DayOfWeek.WEDNESDAY -> "Wed"
-                DayOfWeek.THURSDAY -> "Thu"
-                DayOfWeek.FRIDAY -> "Fri"
-                DayOfWeek.SATURDAY -> "Sat"
-                DayOfWeek.SUNDAY -> "Sun"
+            text = when {
+                stepDate == today -> "Today"
+                else -> stepDate.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault())
             },
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center
         )
-    }
-}
-
-@Composable
-fun StepHistory(stepEntities: List<StepEntity>) {
-    Row(
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    ) {
-        stepEntities.takeLast(7).forEach { stepEntity ->
-            StepHistoryItem(stepEntity)
-        }
     }
 }
