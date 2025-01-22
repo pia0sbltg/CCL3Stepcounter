@@ -121,8 +121,8 @@ fun GoalItem(goal: GoalEntity, onDeleteClick: () -> Unit, onSaveClick: (GoalEnti
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondary,
-            contentColor = MaterialTheme.colorScheme.onSecondary
+            containerColor = Container,
+            contentColor = MaterialTheme.colorScheme.onBackground
         )
     ) {
         Row(
@@ -136,7 +136,7 @@ fun GoalItem(goal: GoalEntity, onDeleteClick: () -> Unit, onSaveClick: (GoalEnti
                 Text(
                     text = DateUtils.getRelativeDayName(goal.dayOfWeek),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSecondary
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 if (isEditing) {
                     OutlinedTextField(

@@ -77,7 +77,7 @@ fun AppNavigation(stepsDao: StepsDao,goalsDao: GoalsDao, petDao: PetDao, ownedPe
             GoalsScreen(GoalsViewModel(goalsDao),navController= navController, onAddGoalClick = {navController.navigate(Routes.Edit.name)})
         }
         composable(Routes.Edit.name){
-            EditGoalScreen(viewModel = GoalsViewModel(goalsDao), onGoalSaved = {navController.popBackStack()})
+            EditGoalScreen(viewModel = GoalsViewModel(goalsDao), onGoalSaved = {navController.popBackStack()}, onBack = { navController.popBackStack() })
         }
         composable(Routes.Shop.name){
             ShopScreen(viewModel = ShopViewModel(petDao, ownedPetsDao), navController)
