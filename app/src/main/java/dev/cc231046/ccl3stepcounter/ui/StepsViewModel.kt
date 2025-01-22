@@ -237,12 +237,16 @@ class StepTracker(
         onStepsUpdated = null
     }
 
+
     override fun onSensorChanged(event: SensorEvent?) {
         event?.let {
             val totalDeviceSteps = it.values[0].toInt()
             val today = LocalDate.now().toString()
 
             CoroutineScope(Dispatchers.IO).launch {
+                val goalForDay= goalsDao.getGoalsForDay(LocalDate.now().dayOfWeek.value).maxOfOrNull { it.stepGoal } ?: 0
+                println(goalForDay)
+
                 // Retrieve today's entry or initialize it if not present
                 if (initialStepCount == null) {
                     val storedSteps = stepsDao.getStepsForDate(today)
@@ -261,7 +265,8 @@ class StepTracker(
                                 StepEntity(
                                     date = today,
                                     initialStepCount = totalDeviceSteps,
-                                    totalSteps = 0
+                                    totalSteps = 0,
+                                    stepGoal = goalForDay
                                 )
                             )
                             println("DEBUG: First-time initialization in onSensorChanged. InitialStepCount: $initialStepCount")
@@ -284,7 +289,8 @@ class StepTracker(
                     StepEntity(
                         date = today,
                         initialStepCount = initialStepCount!!,
-                        totalSteps = todaySteps
+                        totalSteps = todaySteps,
+                        stepGoal = goalForDay
                     )
                 )
 

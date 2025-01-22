@@ -229,8 +229,11 @@ fun StepHistoryItem(stepEntity: StepEntity, goalForDay: Int?) {
                 .aspectRatio(1f)
         ) {
             val goal = goalForDay ?: 0
-            val progress = if (goal > 0) (stepEntity.totalSteps.toFloat() / goal.toFloat()).coerceIn(0f, 1f) else 0f
-
+            val progress = if (stepEntity.stepGoal > 0) {
+                (stepEntity.totalSteps.toFloat() / stepEntity.stepGoal.toFloat()).coerceIn(0f, 1f)
+            } else {
+                0f
+            }
             Canvas(
                 modifier = Modifier.size(40.dp)
             ) {
