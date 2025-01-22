@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
@@ -24,6 +26,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import dev.cc231046.ccl3stepcounter.data.GoalEntity
 
@@ -36,6 +41,9 @@ fun EditGoalScreen(viewModel: GoalsViewModel, onGoalSaved: () -> Unit) {
     val applyToAllDays = remember { mutableStateOf(false) }
 
     val dayOptions = DateUtils.getDropdownDayOptions()
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
 
     Column(
         modifier = Modifier
@@ -103,6 +111,13 @@ fun EditGoalScreen(viewModel: GoalsViewModel, onGoalSaved: () -> Unit) {
                 unfocusedBorderColor = MaterialTheme.colorScheme.secondary,
                 focusedLabelColor = MaterialTheme.colorScheme.primary,
                 unfocusedLabelColor = MaterialTheme.colorScheme.secondary
+            ),
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    keyboardController?.hide()
+                    focusManager.clearFocus()
+                }
             )
         )
 
@@ -124,6 +139,9 @@ fun EditGoalScreen(viewModel: GoalsViewModel, onGoalSaved: () -> Unit) {
 
         Button(
             onClick = {
+                keyboardController?.hide() // Hide keyboard on save button click
+                focusManager.clearFocus()  // Clear focus
+
                 if (stepGoal.value.isNotEmpty()) {
                     viewModel.addOrUpdateGoal(
                         stepGoal =stepGoal.value.toInt(),
