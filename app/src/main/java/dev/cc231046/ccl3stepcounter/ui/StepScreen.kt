@@ -228,12 +228,12 @@ fun StepHistoryItem(stepEntity: StepEntity, goalForDay: Int?) {
                 .size(40.dp)
                 .aspectRatio(1f)
         ) {
-            val goal = goalForDay ?: 0
             val progress = if (stepEntity.stepGoal > 0) {
                 (stepEntity.totalSteps.toFloat() / stepEntity.stepGoal.toFloat()).coerceIn(0f, 1f)
             } else {
                 0f
             }
+            println("HEY ${stepEntity.stepGoal}")
             Canvas(
                 modifier = Modifier.size(40.dp)
             ) {
@@ -273,7 +273,7 @@ fun StepHistoryItem(stepEntity: StepEntity, goalForDay: Int?) {
                         bottom = size.height
                     ) {
                         drawCircle(
-                            color = secondaryColor,
+                            color = Color.Green,
                             radius = circleRadius,
                             center = center
                         )

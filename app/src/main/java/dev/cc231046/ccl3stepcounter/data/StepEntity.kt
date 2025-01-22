@@ -11,6 +11,6 @@ data class StepEntity(
     val initialStepCount: Int,
     val totalSteps: Int,
     val goalReached: Boolean = false,
-    val stepGoal: Int = 0
+    val stepGoal: Int
 
 )

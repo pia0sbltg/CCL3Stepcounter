@@ -98,7 +98,9 @@ class StepsViewModel(
     }
 
     private suspend fun loadStepHistory() {
-        _stepHistory.postValue(stepsDao.getLastSixDays())
+        val stepHistory = stepsDao.getLastSixDays()
+        println("DEBUG: Step History Loaded: $stepHistory")
+        _stepHistory.postValue(stepHistory)
     }
 
     private suspend fun loadTodayGoal() {
@@ -245,7 +247,6 @@ class StepTracker(
 
             CoroutineScope(Dispatchers.IO).launch {
                 val goalForDay= goalsDao.getGoalsForDay(LocalDate.now().dayOfWeek.value).maxOfOrNull { it.stepGoal } ?: 0
-                println(goalForDay)
 
                 // Retrieve today's entry or initialize it if not present
                 if (initialStepCount == null) {
@@ -293,6 +294,11 @@ class StepTracker(
                         stepGoal = goalForDay
                     )
                 )
+
+                val allSteps = stepsDao.getLastSixDays() // Or an equivalent function
+                println("DEBUG: All steps in DB: $allSteps")
+
+                println(goalForDay)
 
                 val goalsForToday = goalsDao.getGoalsForDay(LocalDate.now().dayOfWeek.value)
                 if (goalsForToday.isNotEmpty()) {
