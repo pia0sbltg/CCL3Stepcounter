@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 
-@Database(entities = [StepEntity::class, GoalEntity::class, PetEntity::class, OwnedPetsEntity::class], version = 8)
+@Database(entities = [StepEntity::class, GoalEntity::class, PetEntity::class, OwnedPetsEntity::class], version = 10)
 abstract class StepsDatabase : RoomDatabase() {
     abstract fun stepsDao(): StepsDao
     abstract fun goalsDao(): GoalsDao
