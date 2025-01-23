@@ -7,12 +7,16 @@ description: Steptracker
 
 Movemate is a step tracker app designed to help people integrate more movement into their daily lives. Whether you're aiming for better health, weight loss, or just trying to stay active, Movemate is your companion for staying on track.
 
-### QR Code & Link
+[App Concept](#app-concept)
+[Test Design](#heuristic-evaluation-and-usability-test-design)
+[Test Results](#usability-test-results)
+
+## QR Code & Link
 ![QR Code](assets/frame-2.png "QR Code")
 
 [Download Link](https://we.tl/t-0g0exgcNaF)
 
-## App Concept
+# App Concept
 
 ### Use Case
 Many people today lead pretty sedentary lifestyles, often not getting enough physical activity to maintain their health. The World Health Organization (WHO) lists physical inactivity as one of the leading risk factors for major health problems like heart disease and diabetes. Movemate aims to make it easier and more engaging for people to stay active and build healthier habits. By tracking steps and encouraging users to move more, Movemate helps boost overall health and well-being.
@@ -47,13 +51,68 @@ We plan to add gamification features to make Movemate more fun and interactive. 
 
 With these features, Movemate turns step tracking into an engaging, goal-oriented experience.
 
-## Heuristic Evaluation and Usability Test design
+# Heuristic Evaluation and Usability Test design
 
-[Notion page](https://freckle-buckthorn-932.notion.site/Usability-Test-Movemate-17fff580d2d2806ea7d7e71cd7020bc4)
+We will evaluate our fitness app Movemate. The test aims to assess how intuitive and satisfying the app is to users, with a focus on key features, such as feeding the pet, setting a goal and purchasing an animal in the shop.
+
+**Target Users**
+
+Our target audience includes people of all age groups who lead mostly sedentary lifestyles and are looking to improve their walking habits. It is targeting casual users who enjoy gamified approaches and have broad fitness or weight loss goals, such as increasing daily activity. In general, our app is designed to appeal to users who seek fun, enaging tools for self-improvement.
+
+**Hypotheses**
+
+The pet feeding and shop features will lead to higher user satisfaction, but ultimately users will not find them engaging enough to sustain long-term usage.
+
+The goal-setting and progress-tracking functionality will be perceived as intuitive and easy to use.
+
+Primary Experimental Question
+
+How usable and engaging is Movemate for completing primary tasks such as setting goals, feeding the pet and using the shop?
+
+**Independent and Dependent Variables**
+
+Independent Variables: 
+
+Features being tested
+
+- Setting and editing step goals
+- Pet feeding functionality
+- Shop usability, including purchasing and equipping animals
+
+Dependent Variables:
+
+- User satisfaction
+- Perceived ease of use
+- Task success rate
+
+**Methods for Data Collection**
+
+This test will be a descriptive usability test, conducted in person. Participants will receive a short introduction about the purpose of the app and study and subsequently a form of consent. Afterwards, participants will receive six tasks to complete, including setting a step goal, feeding the pet after achieving said step goal, editing and deleting a goal and purchasing a new pet. Each task will be followed by a Single Ease Question. During the test users are encouraged to think aloud to help us understand their thought process and highlight areas of confusion or difficulty. To conclude the study, users will fill out a SUS questionnaire.
+
+**Data Utilization**
+
+Qualitative Data
+
+Observations and verbal feedback will be used to identify common points of frustration and potential improvement. Additionally, any inconsistencies between the intended functionality and user perception, or unmet expectations can be examined.
+
+Quantitative Data
+
+To analyse our quantitative data we will calculate average SUS and SEQ (?) scores, allowing us to determine overall usability and user satisfaction levels. Task success rates will also be taken into consideration for additional context.
+
+**Heuristic Evaluation**
+
+| Description | Heuristic # | Severity |
+| --- | --- | --- |
+| Step Goal a bit unclear (e.g. user can´t add a day if it already exists → not good error prevention) | 5 | 6 |
+| Users may not understand how to earn coins | 10 | 6 |
+| Deleting and editing button same design (size, color) → may lead to accidental delete | 5/3 | 4 |
+| “Add Goal” written out instead of symbol | 8 | 2 |
+| Completed goals may not be recognizeable as such (for past days) | 6 | 5 |
+| Not every page has a back button (Add goal page) | 4 | 5 |
+| If a user has not enough coins and still tries to buy a new pet, there is no error-message | 9 | 4 |
 
 
-
-## Usability Test Results 
+# Usability Test Results 
 
 ### **Goal:**
 
