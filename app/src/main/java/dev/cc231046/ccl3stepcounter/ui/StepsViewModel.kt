@@ -57,6 +57,23 @@ class StepsViewModel(
             loadTodayGoal()
             loadPetState()
             updateAnimationVersionBasedOnTime()
+            testPrep()
+        }
+    }
+
+    private suspend fun testPrep(){
+        if(_petState.value?.coins!! < 49) {
+            withContext(Dispatchers.IO) {
+                _petState.value?.let {
+                    petDao.updatePet(
+                        feeds = it.feeds,
+                        coins = 49,
+                        currentStage = it.currentStage,
+                        lastFedDate = "01-01-2000"
+                    )
+                }
+                loadPetState()
+            }
         }
     }
 
@@ -81,7 +98,9 @@ class StepsViewModel(
     }
 
     private suspend fun loadStepHistory() {
-        _stepHistory.postValue(stepsDao.getLastSixDays())
+        val stepHistory = stepsDao.getLastSixDays()
+        println("DEBUG: Step History Loaded: $stepHistory")
+        _stepHistory.postValue(stepHistory)
     }
 
     private suspend fun loadTodayGoal() {
@@ -220,12 +239,15 @@ class StepTracker(
         onStepsUpdated = null
     }
 
+
     override fun onSensorChanged(event: SensorEvent?) {
         event?.let {
             val totalDeviceSteps = it.values[0].toInt()
             val today = LocalDate.now().toString()
 
             CoroutineScope(Dispatchers.IO).launch {
+                val goalForDay= goalsDao.getGoalsForDay(LocalDate.now().dayOfWeek.value).maxOfOrNull { it.stepGoal } ?: 0
+
                 // Retrieve today's entry or initialize it if not present
                 if (initialStepCount == null) {
                     val storedSteps = stepsDao.getStepsForDate(today)
@@ -244,7 +266,8 @@ class StepTracker(
                                 StepEntity(
                                     date = today,
                                     initialStepCount = totalDeviceSteps,
-                                    totalSteps = 0
+                                    totalSteps = 0,
+                                    stepGoal = goalForDay
                                 )
                             )
                             println("DEBUG: First-time initialization in onSensorChanged. InitialStepCount: $initialStepCount")
@@ -267,9 +290,15 @@ class StepTracker(
                     StepEntity(
                         date = today,
                         initialStepCount = initialStepCount!!,
-                        totalSteps = todaySteps
+                        totalSteps = todaySteps,
+                        stepGoal = goalForDay
                     )
                 )
+
+                val allSteps = stepsDao.getLastSixDays() // Or an equivalent function
+                println("DEBUG: All steps in DB: $allSteps")
+
+                println(goalForDay)
 
                 val goalsForToday = goalsDao.getGoalsForDay(LocalDate.now().dayOfWeek.value)
                 if (goalsForToday.isNotEmpty()) {
