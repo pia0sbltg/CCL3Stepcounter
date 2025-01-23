@@ -94,8 +94,7 @@ The goal of the user test is to uncover challenges for users and gather user fee
 - Task 5 (Purchase Pet): Average 18.31s
 - Task 6 (Equip Pet): Average 10.58s
     
-    ![AverageTaskCompletionTime.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/cabb7fd9-1109-4610-89b8-c5d1b43ef2e5/ad9c9db0-8024-4d89-8321-ce05b371bc1a/AverageTaskCompletionTime.png)
-    
+    ![AverageTaskCompletionTime](assets/AverageTaskCompletionTime.png)
 
 ### **SEQ (Single Ease Question) Scores (1-7):**
 
@@ -106,7 +105,7 @@ The goal of the user test is to uncover challenges for users and gather user fee
 - Task 5 (Purchase Pet): 7.0
 - Task 6 (Equip Pet): 6.38
     
-    ![SeqScoresForEachTask.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/cabb7fd9-1109-4610-89b8-c5d1b43ef2e5/23a1967d-212d-41a5-aa7e-9280634cfdf4/SeqScoresForEachTask.png)
+    ![SeqScoresForEachTask](assets/SeqScoresForEachTask.png)
     
 
 ### **SUS (System Usability Scale) Score:**
@@ -139,10 +138,10 @@ The goal of the user test is to uncover challenges for users and gather user fee
 1. **UI Enhancements:** Improved Visual Design, especially colors
     
 
-    
+    ![Old Color Scheme](assets/ColorStyles-1.png "Old Color Scheme")
     Old Color Scheme
     
-    
+    ![Updated Color Scheme](assets/ColorStyles.png "Updated Color Scheme")
     Updated Color Scheme
     
 2. **New Pet Mechanic:** If the users do not complete their step goals for some time, the pet will fall asleep and can only be awaken by walking a set amount of steps. The state of sleeping will last until the step goal is reached.
