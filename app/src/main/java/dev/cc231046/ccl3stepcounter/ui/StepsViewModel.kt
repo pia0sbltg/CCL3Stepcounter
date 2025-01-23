@@ -56,7 +56,9 @@ class StepsViewModel(
             /*
             stepsDao.deleteEverything()
              goalsDao.deleteEveryGoal()
-             */
+             petDao.resetPet()
+
+            */
             //stepsDao.deleteToday(LocalDate.now().toString())
             loadPetState()
             setLimit()
@@ -72,7 +74,7 @@ class StepsViewModel(
     }
 
     private fun setLimit(){
-        stepsToRevivalLimit = 10000 + (5000 * _petState.value?.deaths!!)
+        stepsToRevivalLimit = 5000 + (5000 * _petState.value?.deaths!!)
         println("stepsToRevive $stepsToRevivalLimit")
     }
 
@@ -102,13 +104,9 @@ class StepsViewModel(
     private suspend fun checkPet(){
         val pet = petDao.getPet() ?: return
         val lastFedDate = if (pet.lastFedDate.isEmpty()) {
-            LocalDate.MIN
+            LocalDate.now()
         } else {
-            try {
                 LocalDate.parse(pet.lastFedDate)
-            } catch (e: DateTimeParseException) {
-                LocalDate.MIN // Fallback to a very old date in case of parsing errors
-            }
         }
         val daysSinceFed = today.toEpochDay() - lastFedDate.toEpochDay()
 
@@ -125,10 +123,10 @@ class StepsViewModel(
                     currentStage = 4
                 )
                 petDao.addDeath()
-                println("here")
             }
 
             loadPetState()
+            setLimit()
         }
     }
 
@@ -270,8 +268,13 @@ class StepsViewModel(
     private fun addStepsForRevival(steps: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             val pet = petDao.getPet() ?: return@launch
+
             if (pet.currentStage == 4) {
-                val newStepsForRevival = pet.stepsForRevival + steps
+                val lastDate = pet.lastRevivalStepsDate
+                val lastStepsAdded = if (lastDate == today.toString()) pet.lastRevivalStepsAdded else 0
+                val stepsToAdd = steps - lastStepsAdded
+
+                val newStepsForRevival = pet.stepsForRevival + if (stepsToAdd > 0) stepsToAdd else 0
 
                 petDao.updatePet(
                     stepsForRevival = newStepsForRevival,
@@ -280,6 +283,7 @@ class StepsViewModel(
                     coins = pet.coins,
                     feeds = pet.feeds
                 )
+                petDao.updateLastRevivalSteps(steps, today.toString())
                 loadPetState()
 
                 if( newStepsForRevival >= stepsToRevivalLimit){

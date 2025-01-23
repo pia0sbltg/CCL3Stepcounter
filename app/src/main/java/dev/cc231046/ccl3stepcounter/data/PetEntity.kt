@@ -12,5 +12,8 @@ data class PetEntity(
     val feeds: Int = 0,
     val lastFedDate: String = "",
     val stepsForRevival: Int =0,
-    val deaths: Int = 0
+    val deaths: Int = 0,
+    val lastRevivalStepsAdded: Int = 0,
+    val lastRevivalStepsDate: String =""
+
 )

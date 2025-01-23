@@ -220,6 +220,7 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
                         )
                     }
                 }
+                Text("${stepsForRevival}/$stepsToReviveLimit")
                 Spacer(modifier = Modifier.height(8.dp))
 
                 if (reviveButton == true) {
@@ -411,11 +412,11 @@ fun HelpDialog(onDismiss: () -> Unit){
 
                     🐾 Your Pet:
                     - Your pet needs to be fed daily to stay healthy. Reach your step goal to feed it!
-                    - If you don't feed your pet for 5 consecutive days, it will "fall asleep" (die). Don't worry—walk steps to wake it up.
+                    - If you don't feed your pet for 5 consecutive days, it will fall into a deep slumber. Don't worry though, you can walk steps to wake it up.
                     
-                    🌟 Reviving Your Pet:
-                    - Walk a certain number of steps (e.g., 10,000) to revive your pet.
-                    - Once revived, your pet will be happy again and ready to join you on your journey.
+                    🌟 Waking Your Pet:
+                    - Walk a certain number of steps (e.g., 10,000) to wake your pet.
+                    - Once awake, your pet will be happy again and ready to join you on your journey.
 
                     Stay active, take care of your pet, and have fun reaching your fitness goals!
                 """.trimIndent(),
