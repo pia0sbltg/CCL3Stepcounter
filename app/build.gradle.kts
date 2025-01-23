@@ -57,6 +57,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.runtime)
     implementation(libs.places)
+    implementation(libs.protolite.well.known.types)
     ksp("androidx.room:room-compiler:2.5.0")
 
     implementation("io.coil-kt:coil:2.4.0")

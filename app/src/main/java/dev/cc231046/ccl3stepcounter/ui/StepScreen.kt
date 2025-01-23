@@ -2,6 +2,7 @@ package dev.cc231046.ccl3stepcounter.ui
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -41,15 +42,20 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.text.style.TextAlign
 import coil.compose.rememberAsyncImagePainter
+import com.google.rpc.Help
 import dev.cc231046.ccl3stepcounter.R
 import java.time.format.TextStyle
 import java.util.Locale
@@ -89,7 +95,9 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
     val stepsHistory by viewModel.stepHistory.observeAsState(emptyList())
     val todayGoal by viewModel.todayGoal.observeAsState(0)
     val petState by viewModel.petState.observeAsState()
+
     val reviveButton = viewModel.reviveButton
+    var showHelpDialog by remember { mutableStateOf(false) }
 
     val primaryCol = MaterialTheme.colorScheme.primary
 
@@ -138,13 +146,24 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
                     contentDescription = "Coins",
                     modifier = Modifier
                         .size(30.dp) // Adjust size as needed
-                        .padding(end = 8.dp) // Add some spacing between the image and text
+                        .padding(end = 8.dp)
                 )
 
                 Text(
                     text = "${petState?.coins ?: 0}",
                     style = MaterialTheme.typography.bodyLarge
                 )
+
+                IconButton(onClick = {
+                    showHelpDialog = true
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = "Help",
+                        tint = MaterialTheme.colorScheme.onSecondary
+                    )
+                }
+
             }
         }
 
@@ -179,9 +198,9 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
                 Text("Goals")
             }
 
-            if(petState?.currentStage == 4 ) {
+            if (petState?.currentStage == 4) {
                 val stepsForRevival = petState?.stepsForRevival ?: 0
-                val progress = (stepsForRevival.toFloat() / stepsToReviveLimit).coerceIn(0f,1f)
+                val progress = (stepsForRevival.toFloat() / stepsToReviveLimit).coerceIn(0f, 1f)
 
                 Box(
                     modifier = Modifier
@@ -218,7 +237,7 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
-            }else{
+            } else {
                 if (canFeed) {
                     Button(
                         onClick = {
@@ -230,7 +249,10 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
                         Text("Feed Pet")
                     }
                 } else if (!todayGoalReached) {
-                    Text("Reach your goal to feed the pet!", style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        "Reach your goal to feed the pet!",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 } else {
                     Text("Pet already fed today!", style = MaterialTheme.typography.bodyMedium)
                 }
@@ -248,6 +270,11 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
                 StepHistoryItem(stepEntity, goalForDay)
                 Spacer(modifier = Modifier.height(8.dp))
             }
+        }
+
+        if (showHelpDialog) {
+            HelpDialog(onDismiss = { showHelpDialog = false })
+
         }
     }
 }
@@ -359,4 +386,47 @@ fun StepHistory(stepEntities: List<StepEntity>, goalsForDays: List<Int?>) {
             StepHistoryItem(stepEntity, goalForDay)
         }
     }
+}
+
+@Composable
+fun HelpDialog(onDismiss: () -> Unit){
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(text = "About the App", style = MaterialTheme.typography.headlineSmall)
+        },
+        text = {
+            Text(
+                text = """
+                    Welcome to the Step Counter App!
+                    
+                    🎯 Step Goals:
+                    - Set your daily step goals to stay motivated and track your progress.
+                    - Each day, aim to hit your goal to keep your pet healthy and earn rewards.
+
+                    🪙 Coins: 
+                    - Earn coins by feeding your pet daily after reaching your step goal.
+                    - Complete challenges or events to earn extra coins.
+                    - Use coins to buy items or unlock rewards in the shop.
+
+                    🐾 Your Pet:
+                    - Your pet needs to be fed daily to stay healthy. Reach your step goal to feed it!
+                    - If you don't feed your pet for 5 consecutive days, it will "fall asleep" (die). Don't worry—walk steps to wake it up.
+                    
+                    🌟 Reviving Your Pet:
+                    - Walk a certain number of steps (e.g., 10,000) to revive your pet.
+                    - Once revived, your pet will be happy again and ready to join you on your journey.
+
+                    Stay active, take care of your pet, and have fun reaching your fitness goals!
+                """.trimIndent(),
+                style = MaterialTheme.typography.bodyMedium
+            )
+        },
+        confirmButton = {
+            Button(onClick = onDismiss) {
+                Text("Got it!")
+            }
+        }
+
+    )
 }
