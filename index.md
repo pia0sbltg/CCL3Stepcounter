@@ -7,6 +7,11 @@ description: Steptracker
 
 Movemate is a step tracker app designed to help people integrate more movement into their daily lives. Whether you're aiming for better health, weight loss, or just trying to stay active, Movemate is your companion for staying on track.
 
+### QR Code & Link
+![QR Code](assets/frame-2.png "QR Code")
+
+[Download Link](https://we.tl/t-0g0exgcNaF)
+
 ## App Concept
 
 ### Use Case
