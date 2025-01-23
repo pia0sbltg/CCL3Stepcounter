@@ -44,15 +44,20 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.text.style.TextAlign
 import coil.compose.rememberAsyncImagePainter
+import com.google.rpc.Help
 import dev.cc231046.ccl3stepcounter.R
 import java.time.format.TextStyle
 import java.util.Locale
@@ -93,6 +98,13 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
     val todayGoal by viewModel.todayGoal.observeAsState(0)
     val petState by viewModel.petState.observeAsState()
 
+    val reviveButton = viewModel.reviveButton
+    var showHelpDialog by remember { mutableStateOf(false) }
+
+    val primaryCol = MaterialTheme.colorScheme.primary
+
+    val stepsToReviveLimit = viewModel.stepsToRevivalLimit
+
     val todayGoalReached = stepsHistory.any { it.date == LocalDate.now().toString() && it.goalReached }
     var canFeed = todayGoalReached && petState?.lastFedDate != LocalDate.now().toString()
 
@@ -111,7 +123,6 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Top row with Shop button and coins
         // Top row with Shop button and coins
         Row(
             modifier = Modifier
@@ -136,14 +147,25 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
                     painter = rememberAsyncImagePainter(R.drawable.coin), // Ensure coin.png is added as a drawable resource
                     contentDescription = "Coins",
                     modifier = Modifier
-                        .size(30.dp) // Adjust size as needed
-                        .padding(end = 8.dp) // Add some spacing between the image and text
+                        .size(30.dp)
+                        .padding(end = 8.dp)
                 )
 
                 Text(
                     text = "${petState?.coins ?: 0}",
                     style = MaterialTheme.typography.bodyLarge
                 )
+
+                IconButton(onClick = {
+                    showHelpDialog = true
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = "Help",
+                        tint = MaterialTheme.colorScheme.onSecondary
+                    )
+                }
+
             }
         }
 
@@ -159,10 +181,9 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
                 .padding(vertical = 8.dp)
         )
 
-        // Spacer to ensure separation between components
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(16.dp)) // Extra space after the circular progress
 
-        // Goals button and feed text
+        // Goals button and feed text, placed toward the bottom
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -178,20 +199,65 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
                 Text("Goals")
             }
 
-            if (canFeed) {
-                Button(
-                    onClick = {
-                        viewModel.viewModelScope.launch { viewModel.feedPet() }
-                        canFeed = false
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            if (petState?.currentStage == 4) {
+                val stepsForRevival = petState?.stepsForRevival ?: 0
+                val progress = (stepsForRevival.toFloat() / stepsToReviveLimit).coerceIn(0f, 1f)
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.8f)
+                        .height(16.dp)
                 ) {
-                    Text("Feed Pet")
+                    Canvas(modifier = Modifier.matchParentSize()) {
+                        drawRect(
+                            color = Color.LightGray,
+                            size = this.size
+                        )
+                    }
+                    Canvas(modifier = Modifier.fillMaxWidth(progress).matchParentSize()) {
+                        drawRect(
+                            color = primaryCol,
+                            size = this.size.copy(width = this.size.width * progress)
+                        )
+                    }
                 }
-            } else if (!todayGoalReached) {
-                Text("Reach your goal to feed the pet!", style = MaterialTheme.typography.bodyMedium)
+                Text("${stepsForRevival}/$stepsToReviveLimit")
+                Spacer(modifier = Modifier.height(8.dp))
+
+                if (reviveButton == true) {
+                    Button(
+                        onClick = {
+                            viewModel.wakeUpAnimal()
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                    ) {
+                        Text("Wake Up")
+                    }
+                } else {
+                    Text(
+                        "Reach ${stepsToReviveLimit} steps to wake up your pet!",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
             } else {
-                Text("Pet already fed today!", style = MaterialTheme.typography.bodyMedium)
+                if (canFeed) {
+                    Button(
+                        onClick = {
+                            viewModel.viewModelScope.launch { viewModel.feedPet() }
+                            canFeed = false
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    ) {
+                        Text("Feed Pet")
+                    }
+                } else if (!todayGoalReached) {
+                    Text(
+                        "Reach your goal to feed the pet!",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                } else {
+                    Text("Pet already fed today!", style = MaterialTheme.typography.bodyMedium)
+                }
             }
         }
 
@@ -206,6 +272,11 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
                 StepHistoryItem(stepEntity, goalForDay)
                 Spacer(modifier = Modifier.height(8.dp))
             }
+        }
+
+        if (showHelpDialog) {
+            HelpDialog(onDismiss = { showHelpDialog = false })
+
         }
     }
 }
@@ -317,4 +388,47 @@ fun StepHistory(stepEntities: List<StepEntity>, goalsForDays: List<Int?>) {
             StepHistoryItem(stepEntity, goalForDay)
         }
     }
+}
+
+@Composable
+fun HelpDialog(onDismiss: () -> Unit){
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(text = "About the App", style = MaterialTheme.typography.headlineSmall)
+        },
+        text = {
+            Text(
+                text = """
+                    Welcome to the Step Counter App!
+                    
+                    🎯 Step Goals:
+                    - Set your daily step goals to stay motivated and track your progress.
+                    - Each day, aim to hit your goal to keep your pet healthy and earn rewards.
+
+                    🪙 Coins: 
+                    - Earn coins by feeding your pet daily after reaching your step goal.
+                    - Complete challenges or events to earn extra coins.
+                    - Use coins to buy items or unlock rewards in the shop.
+
+                    🐾 Your Pet:
+                    - Your pet needs to be fed daily to stay healthy. Reach your step goal to feed it!
+                    - If you don't feed your pet for 5 consecutive days, it will fall into a deep slumber. Don't worry though, you can walk steps to wake it up.
+                    
+                    🌟 Waking Your Pet:
+                    - Walk a certain number of steps (e.g., 10,000) to wake your pet.
+                    - Once awake, your pet will be happy again and ready to join you on your journey.
+
+                    Stay active, take care of your pet, and have fun reaching your fitness goals!
+                """.trimIndent(),
+                style = MaterialTheme.typography.bodyMedium
+            )
+        },
+        confirmButton = {
+            Button(onClick = onDismiss) {
+                Text("Got it!")
+            }
+        }
+
+    )
 }
