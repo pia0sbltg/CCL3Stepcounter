@@ -52,20 +52,16 @@ fun EditGoalScreen(viewModel: GoalsViewModel, onGoalSaved: () -> Unit, onBack: (
     val applyToAllDays = remember { mutableStateOf(false) }
 
     val dayOptions = DateUtils.getDropdownDayOptions()
-
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
 
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        // TopAppBar with Back Button
+    Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
-            title = { Text(text = "Add new Goal") },
+            title = { Text("Add new Goal") },
             navigationIcon = {
-                IconButton(onClick = { onBack() }) {
+                IconButton(onClick = onBack) {
                     Icon(
-                        imageVector = Icons.Filled.ArrowBack, // Use this for the back arrow icon
+                        imageVector = Icons.Filled.ArrowBack,
                         contentDescription = "Back",
                         tint = MaterialTheme.colorScheme.onBackground
                     )
@@ -73,78 +69,22 @@ fun EditGoalScreen(viewModel: GoalsViewModel, onGoalSaved: () -> Unit, onBack: (
             },
             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                 containerColor = MaterialTheme.colorScheme.background
-            label = { Text("Step Goal") },
-            modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.secondary,
-                focusedLabelColor = MaterialTheme.colorScheme.primary,
-                unfocusedLabelColor = MaterialTheme.colorScheme.secondary
-            ),
-            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(
-                onDone = {
-                    keyboardController?.hide()
-                    focusManager.clearFocus()
-                }
             )
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Rest of the EditGoalScreen content
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp),
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // The rest of your code goes here
             Text(
                 text = "Set Goal",
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onBackground
             )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Apply to all days")
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = {
-                keyboardController?.hide() // Hide keyboard on save button click
-                focusManager.clearFocus()  // Clear focus
-
-                if (stepGoal.value.isNotEmpty()) {
-                    viewModel.addOrUpdateGoal(
-                        stepGoal =stepGoal.value.toInt(),
-                        dayOfWeek = dayOfWeek.intValue,
-                        applyToAllDays.value,
-                        onConflict = { message -> snackbarMessage.value = message },
-                        onSuccess = {
-                            snackbarMessage.value = "Goal saved successfully!"
-                            onGoalSaved()
-                        }
-                    )
-                } else {
-                    snackbarMessage.value = "Please enter a step goal."
-                }
-            },
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            )
-        ) {
-            Text("Save Goal")
-        }
-
-        if (snackbarMessage.value.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(16.dp))
 
             if (!applyToAllDays.value) {
-
                 Button(
                     onClick = { isDropdownExpanded.value = true },
                     modifier = Modifier.fillMaxWidth(),
@@ -178,8 +118,6 @@ fun EditGoalScreen(viewModel: GoalsViewModel, onGoalSaved: () -> Unit, onBack: (
                         )
                     }
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
             }
 
             OutlinedTextField(
@@ -196,10 +134,15 @@ fun EditGoalScreen(viewModel: GoalsViewModel, onGoalSaved: () -> Unit, onBack: (
                     unfocusedBorderColor = MaterialTheme.colorScheme.secondary,
                     focusedLabelColor = MaterialTheme.colorScheme.primary,
                     unfocusedLabelColor = MaterialTheme.colorScheme.secondary
+                ),
+                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        keyboardController?.hide()
+                        focusManager.clearFocus()
+                    }
                 )
             )
-
-            Spacer(modifier = Modifier.height(16.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -213,10 +156,11 @@ fun EditGoalScreen(viewModel: GoalsViewModel, onGoalSaved: () -> Unit, onBack: (
                 Text("Apply to all days")
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
             Button(
                 onClick = {
+                    keyboardController?.hide()
+                    focusManager.clearFocus()
+
                     if (stepGoal.value.isNotEmpty()) {
                         viewModel.addOrUpdateGoal(
                             stepGoal = stepGoal.value.toInt(),
@@ -242,7 +186,6 @@ fun EditGoalScreen(viewModel: GoalsViewModel, onGoalSaved: () -> Unit, onBack: (
             }
 
             if (snackbarMessage.value.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(16.dp))
                 Snackbar(
                     modifier = Modifier.padding(8.dp),
                     action = {
@@ -255,4 +198,5 @@ fun EditGoalScreen(viewModel: GoalsViewModel, onGoalSaved: () -> Unit, onBack: (
                 }
             }
         }
-    }}
+    }
+}

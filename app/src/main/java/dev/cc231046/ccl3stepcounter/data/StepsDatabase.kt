@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import dev.cc231046.ccl3stepcounter.data.GoalEntity
+
 
 @Database(entities = [StepEntity::class, GoalEntity::class, PetEntity::class, OwnedPetsEntity::class], version = 8)
 abstract class StepsDatabase : RoomDatabase() {
