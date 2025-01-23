@@ -26,6 +26,9 @@ interface PetDao {
     @Query("DELETE FROM pet")
     suspend fun resetPet()
 
-    @Query("UPDATE pet SET feeds = 9")
+    @Query("UPDATE pet SET deaths = deaths + 1 WHERE id = 1")
+    suspend fun addDeath()
+
+    @Query("UPDATE pet SET feeds = 9 WHERE id = 1")
     suspend fun updatePetFeeds9()
 }

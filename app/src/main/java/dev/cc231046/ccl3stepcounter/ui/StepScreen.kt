@@ -2,7 +2,6 @@ package dev.cc231046.ccl3stepcounter.ui
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -41,7 +39,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
@@ -94,7 +91,9 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
     val petState by viewModel.petState.observeAsState()
     val reviveButton = viewModel.reviveButton
 
-    val stepToReviveLimit = viewModel.stepsToRevivalLimit
+    val primaryCol = MaterialTheme.colorScheme.primary
+
+    val stepsToReviveLimit = viewModel.stepsToRevivalLimit
 
     val todayGoalReached = stepsHistory.any { it.date == LocalDate.now().toString() && it.goalReached }
     var canFeed = todayGoalReached && petState?.lastFedDate != LocalDate.now().toString()
@@ -114,7 +113,6 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Top row with Shop button and coins
         // Top row with Shop button and coins
         Row(
             modifier = Modifier
@@ -181,21 +179,46 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
                 Text("Goals")
             }
 
-            if(petState?.currentStage == 4 && reviveButton==true){
-                Button(
-                    onClick = {
-                        viewModel.wakeUpAnimal()
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                ){
-                    Text("Wake Up")
+            if(petState?.currentStage == 4 ) {
+                val stepsForRevival = petState?.stepsForRevival ?: 0
+                val progress = (stepsForRevival.toFloat() / stepsToReviveLimit).coerceIn(0f,1f)
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.8f)
+                        .height(16.dp)
+                ) {
+                    Canvas(modifier = Modifier.matchParentSize()) {
+                        drawRect(
+                            color = Color.LightGray,
+                            size = this.size
+                        )
+                    }
+                    Canvas(modifier = Modifier.fillMaxWidth(progress).matchParentSize()) {
+                        drawRect(
+                            color = primaryCol,
+                            size = this.size.copy(width = this.size.width * progress)
+                        )
+                    }
                 }
-            }else if(petState?.currentStage == 4){
-                Text("Reach ${stepToReviveLimit} steps to wake up your pet!", style = MaterialTheme.typography.bodyMedium)
+                Spacer(modifier = Modifier.height(8.dp))
 
-            }
-
-            if( petState?.currentStage!=4){
+                if (reviveButton == true) {
+                    Button(
+                        onClick = {
+                            viewModel.wakeUpAnimal()
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                    ) {
+                        Text("Wake Up")
+                    }
+                } else {
+                    Text(
+                        "Reach ${stepsToReviveLimit} steps to wake up your pet!",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }else{
                 if (canFeed) {
                     Button(
                         onClick = {

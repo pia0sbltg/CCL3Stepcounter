@@ -47,6 +47,8 @@ class StepsViewModel(
 
     var reviveButton = (false)
 
+    private val today = LocalDate.now()
+
     var stepsToRevivalLimit :Int = 0
 
     init {
@@ -63,13 +65,14 @@ class StepsViewModel(
             loadStepHistory()
             loadTodayGoal()
             checkDailyGoal()
+            checkPet()
             updateAnimationVersionBasedOnTime()
            // testPrep()
         }
     }
 
     private fun setLimit(){
-        stepsToRevivalLimit = 10 + (5000 * _petState.value?.deaths!!)
+        stepsToRevivalLimit = 10000 + (5000 * _petState.value?.deaths!!)
         println("stepsToRevive $stepsToRevivalLimit")
     }
 
@@ -96,12 +99,10 @@ class StepsViewModel(
         }
     }
 
-    private suspend fun checkDailyGoal() {
-        val today = LocalDate.now()
+    private suspend fun checkPet(){
         val pet = petDao.getPet() ?: return
-        println(pet)
         val lastFedDate = if (pet.lastFedDate.isEmpty()) {
-            LocalDate.MIN // A default very old date
+            LocalDate.MIN
         } else {
             try {
                 LocalDate.parse(pet.lastFedDate)
@@ -109,30 +110,13 @@ class StepsViewModel(
                 LocalDate.MIN // Fallback to a very old date in case of parsing errors
             }
         }
-
         val daysSinceFed = today.toEpochDay() - lastFedDate.toEpochDay()
+
         println("Dayssincefed $daysSinceFed")
-        val todaySteps = stepsDao.getStepsForDate(today.toString())
-        val goalsForToday = goalsDao.getGoalsForDay(LocalDate.now().dayOfWeek.value)
+        println("stepstorevival ${pet.stepsForRevival}")
 
-        val goalReached = if (todaySteps != null && goalsForToday.isNotEmpty()) {
-            val highestGoal = goalsForToday.maxOf { it.stepGoal }
-            todaySteps.totalSteps >= highestGoal
-        } else {
-            false
-        }
-
-        println(pet.currentStage)
         withContext(Dispatchers.IO){
-            if(goalReached){
-                petDao.updatePet(
-                    feeds = pet.feeds,
-                    coins = pet.coins,
-                    lastFedDate = lastFedDate.toString(),
-                    stepsForRevival = pet.stepsForRevival,
-                    currentStage = pet.currentStage
-                )
-            } else if (daysSinceFed >= 5) {
+            if (daysSinceFed >= 5 && pet.currentStage!=4) {
                 petDao.updatePet(
                     feeds = pet.feeds,
                     coins = pet.coins,
@@ -140,11 +124,25 @@ class StepsViewModel(
                     stepsForRevival = 0,
                     currentStage = 4
                 )
-
+                petDao.addDeath()
                 println("here")
             }
+
+            loadPetState()
         }
-        loadPetState()
+    }
+
+    private suspend fun checkDailyGoal() {
+        val todaySteps = stepsDao.getStepsForDate(today.toString())
+        val goalsForToday = goalsDao.getGoalsForDay(LocalDate.now().dayOfWeek.value)
+
+        if(todaySteps != null && goalsForToday.isNotEmpty()){
+            val highestGoal = goalsForToday.maxOf { it.stepGoal }
+            val goalReached = todaySteps.totalSteps >= highestGoal
+            stepsDao.updateGoalReached(today.toString(),goalReached)
+        }else{
+            stepsDao.updateGoalReached(today.toString(),false)
+        }
     }
 
     private suspend fun loadStepHistory() {
