@@ -21,8 +21,8 @@ interface StepsDao {
     @Query("SELECT * FROM steps")
     suspend fun getAllSteps(): List<StepEntity>?
 
-    @Query("UPDATE steps SET totalSteps = :totalSteps WHERE date = :date")
-    suspend fun updateTotalSteps(date: String, totalSteps: Int)
+    @Query("UPDATE steps SET totalSteps = :totalSteps, stepGoal = :stepGoal WHERE date = :date")
+    suspend fun updateTotalSteps(date: String, totalSteps: Int, stepGoal:Int)
 
     @Transaction
     suspend fun insertOrUpdateSteps(steps: StepEntity) {
@@ -30,7 +30,7 @@ interface StepsDao {
         if (existingEntry == null) {
             insertSteps(steps)
         } else {
-            updateTotalSteps(steps.date, steps.totalSteps)
+            updateTotalSteps(steps.date, steps.totalSteps, steps.stepGoal)
         }
     }
 
@@ -42,7 +42,6 @@ interface StepsDao {
 
     @Query("DElETE FROM steps WHERE date = :date")
     suspend fun deleteToday(date:String){
-        println("Deleted TOday")
     }
 
     @Query("UPDATE steps SET goalReached = :goalReached WHERE date = :date")

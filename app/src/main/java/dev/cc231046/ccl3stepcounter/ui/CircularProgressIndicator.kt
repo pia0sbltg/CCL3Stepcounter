@@ -29,9 +29,11 @@ import dev.cc231046.ccl3stepcounter.R
 import kotlin.math.min
 
 @Composable
-fun CircularProgressWithDog(
+fun CircularProgressWithPet(
     steps: Int,
     goalSteps: Int,
+    animalType: String,
+    petState: Int?,
     modifier: Modifier = Modifier
 ) {
     var progressValue by remember { mutableFloatStateOf(0f) }
@@ -39,12 +41,37 @@ fun CircularProgressWithDog(
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
     val size = min(screenWidth.value * 0.7f, 250f).dp
-    val dogSize = size.value * 0.8f  // Increased from 0.4f to 0.6f
+    val petSize = size.value * 0.7f
 
-    // Context for ImageLoader
     val context = LocalContext.current
 
-    // Create ImageLoader that can handle GIFs
+    val progressColor = MaterialTheme.colorScheme.secondary
+
+    val currentAnim by remember(animalType, petState) {
+        derivedStateOf {
+            when (animalType) {
+                "dog" -> when (petState) {
+                    2 -> R.drawable.dog_sleeping
+                    4 -> R.drawable.dog_sleeping
+                    3 -> R.drawable.dog_workout
+                    else -> R.drawable.dog_animation
+                }
+                "cat" -> when (petState) {
+                    2 -> R.drawable.cat_sleeping
+                    4 -> R.drawable.cat_sleeping
+                    3 -> R.drawable.cat_workout
+                    else -> R.drawable.cat_animation
+                }"rabbit" -> when (petState) {
+                    2 -> R.drawable.rabbit_sleeping
+                    4 -> R.drawable.rabbit_sleeping
+                    3 -> R.drawable.rabbit_workout
+                    else -> R.drawable.rabbit_animation
+                }
+                else -> R.drawable.dog_animation
+            }
+        }
+    }
+
     val imageLoader = remember {
         ImageLoader.Builder(context)
             .components {
@@ -71,6 +98,8 @@ fun CircularProgressWithDog(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 16.dp)
     ) {
         Box(
             contentAlignment = Alignment.Center,
@@ -78,21 +107,14 @@ fun CircularProgressWithDog(
                 .size(size)
                 .aspectRatio(1f)
         ) {
-            // Progress Circle
             Canvas(
                 modifier = Modifier
                     .size(size)
                     .aspectRatio(1f)
             ) {
                 val strokeWidth = 16.dp.toPx()
-                val diameter = min(size.toPx(), size.toPx()) - strokeWidth
-                val radius = diameter / 2
-
-
-
-                // Progress arc
                 drawArc(
-                    color = Color(0xFF90EE90),
+                    color = progressColor,
                     startAngle = -90f,
                     sweepAngle = 360f * animatedProgress,
                     useCenter = false,
@@ -103,37 +125,37 @@ fun CircularProgressWithDog(
                 )
             }
 
-            // Animated Dog GIF
             Image(
                 painter = rememberAsyncImagePainter(
                     ImageRequest.Builder(context)
-                        .data(R.drawable.dog_animation)
-                        .size(Size.ORIGINAL) // Maintain original GIF size
+                        .data(currentAnim)
+                        .size(Size.ORIGINAL)
                         .build(),
                     imageLoader = imageLoader
                 ),
-                contentDescription = "Dog Animation",
-                modifier = Modifier.size(dogSize.dp)
+                contentDescription = "Pet Animation",
+                modifier = Modifier.size(petSize.dp)
             )
         }
 
-        // Steps display below circle
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(top = 16.dp)
-        ) {
-            Text(
-                text = "$steps",
-                style = TextStyle(
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold
-                )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Updated steps display
+        Text(
+            text = "$steps",
+            style = TextStyle(
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold
+            ),
+            modifier = Modifier.padding(bottom = 2.dp)
+        )
+
+        Text(
+            text = "/ $goalSteps steps",
+            style = TextStyle(
+                fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )
-            Text(
-                text = "steps",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(top = 4.dp)
-            )
-        }
+        )
     }
 }

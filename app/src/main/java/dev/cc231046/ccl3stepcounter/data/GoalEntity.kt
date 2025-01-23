@@ -5,7 +5,6 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "goals")
 data class GoalEntity(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val dayOfWeek: Int, // 1 = Monday, 2 = Tuesday, ..., 7 = Sunday
-    val stepGoal: Int,  // Step goal for the day
+    @PrimaryKey val dayOfWeek: Int, // Ensure this is marked as the primary key
+    val stepGoal: Int
 )

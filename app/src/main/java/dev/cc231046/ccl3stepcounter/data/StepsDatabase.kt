@@ -5,11 +5,13 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [StepEntity::class, GoalEntity::class, PetEntity::class], version = 4)
+
+@Database(entities = [StepEntity::class, GoalEntity::class, PetEntity::class, OwnedPetsEntity::class], version = 10)
 abstract class StepsDatabase : RoomDatabase() {
     abstract fun stepsDao(): StepsDao
     abstract fun goalsDao(): GoalsDao
     abstract fun petDao(): PetDao
+    abstract fun ownedPetsDao(): OwnedPetsDao
 
     companion object{
         @Volatile

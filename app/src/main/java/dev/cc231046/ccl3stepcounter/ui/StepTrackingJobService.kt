@@ -8,6 +8,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import dev.cc231046.ccl3stepcounter.data.GoalEntity
 import dev.cc231046.ccl3stepcounter.data.StepEntity
 import dev.cc231046.ccl3stepcounter.data.StepsDatabase
 import kotlinx.coroutines.CoroutineScope
@@ -15,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
+import kotlin.math.max
 
 @SuppressLint("SpecifyJobSchedulerIdRange")
 class StepTrackingJobService: JobService(){
@@ -39,11 +41,11 @@ class StepTrackingJobService: JobService(){
     private suspend fun performStepTracking(){
         val today= LocalDate.now().toString()
         val currentStepCount = getCurrentStepCount(applicationContext)
-
         val storedSteps = withContext(Dispatchers.IO){
             stepsDao.getStepsForDate(today)
         }
         val goalsForToday = goalsDao.getGoalsForDay(LocalDate.now().dayOfWeek.value)
+        val goal = goalsForToday.maxOf { it.stepGoal }
 
         if(storedSteps === null){
             withContext(Dispatchers.IO) {
@@ -51,7 +53,8 @@ class StepTrackingJobService: JobService(){
                     StepEntity(
                         date = today,
                         initialStepCount = currentStepCount,
-                        totalSteps = 0
+                        totalSteps = 0,
+                        stepGoal = goal
                     )
                 )
             }
