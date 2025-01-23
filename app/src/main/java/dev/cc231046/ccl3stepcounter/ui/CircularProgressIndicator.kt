@@ -17,6 +17,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.ImageLoader
@@ -59,7 +60,8 @@ fun CircularProgressWithPet(
                     2 -> R.drawable.cat_sleeping
                     3 -> R.drawable.cat_workout
                     else -> R.drawable.cat_animation
-                }"rabbit" -> when (petState) {
+                }
+                "rabbit" -> when (petState) {
                     2 -> R.drawable.rabbit_sleeping
                     3 -> R.drawable.rabbit_workout
                     else -> R.drawable.rabbit_animation
@@ -137,22 +139,31 @@ fun CircularProgressWithPet(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Updated steps display
-        Text(
-            text = "$steps",
-            style = TextStyle(
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold
-            ),
-            modifier = Modifier.padding(bottom = 2.dp)
-        )
-
-        Text(
-            text = "/ $goalSteps steps",
-            style = TextStyle(
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+        // Updated steps display with better alignment
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(8.dp)
+        ) {
+            Text(
+                text = "$steps",
+                style = TextStyle(
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                ),
+                modifier = Modifier
+                    .padding(bottom = 4.dp) // Space between steps and goal
             )
-        )
+
+            Text(
+                text = "/ $goalSteps steps",
+                style = TextStyle(
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                    textAlign = TextAlign.Center
+                ),
+                modifier = Modifier.padding(top = 2.dp) // Avoid text overlap
+            )
+        }
     }
 }

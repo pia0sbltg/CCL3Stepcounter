@@ -112,7 +112,6 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Top row with Shop button and coins
-        // Top row with Shop button and coins
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -127,17 +126,15 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
                 Text("Shop")
             }
 
-            // Coins display with an image and text
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Replace with your actual coin.png resource
                 Image(
-                    painter = rememberAsyncImagePainter(R.drawable.coin), // Ensure coin.png is added as a drawable resource
+                    painter = rememberAsyncImagePainter(R.drawable.coin),
                     contentDescription = "Coins",
                     modifier = Modifier
-                        .size(30.dp) // Adjust size as needed
-                        .padding(end = 8.dp) // Add some spacing between the image and text
+                        .size(30.dp)
+                        .padding(end = 8.dp)
                 )
 
                 Text(
@@ -147,22 +144,20 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
             }
         }
 
-
-        // Circular progress with pet (reduced weight to leave space for steps text)
+        // Circular progress with pet
         CircularProgressWithPet(
             steps = steps,
             goalSteps = todayGoal,
             animalType = petState?.selectedAnimal ?: "dog",
             petState = petState?.currentStage,
             modifier = Modifier
-                .weight(1.75f)
+                .weight(1f) // Take up remaining space to push other elements down
                 .padding(vertical = 8.dp)
         )
 
-        // Spacer to ensure separation between components
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(16.dp)) // Extra space after the circular progress
 
-        // Goals button and feed text
+        // Goals button and feed text, placed toward the bottom
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -173,7 +168,7 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
                 onClick = { navController.navigate(Routes.Goals.name) },
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
-                    .padding(bottom = 8.dp)
+                    .padding(bottom = 8.dp) // Spacing below the button
             ) {
                 Text("Goals")
             }
@@ -195,16 +190,17 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
             }
         }
 
+        Spacer(modifier = Modifier.height(24.dp)) // Add space between buttons and history
+
         // Step history list
         LazyRow(
             modifier = Modifier
-                .weight(1f)
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
             items(stepsHistory.zip(stepHistoryGoals)) { (stepEntity, goalForDay) ->
                 StepHistoryItem(stepEntity, goalForDay)
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.width(8.dp))
             }
         }
     }
@@ -220,12 +216,13 @@ fun StepHistoryItem(stepEntity: StepEntity, goalForDay: Int?) {
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.width(48.dp)
+        verticalArrangement = Arrangement.SpaceBetween, // Provide spacing between elements
+        modifier = Modifier.width(64.dp) // Adjust width to handle small screen sizes
     ) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .size(40.dp)
+                .size(48.dp)
                 .aspectRatio(1f)
         ) {
             val progress = if (stepEntity.stepGoal > 0) {
@@ -291,7 +288,7 @@ fun StepHistoryItem(stepEntity: StepEntity, goalForDay: Int?) {
             }
         }
 
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Day text
         Text(
