@@ -92,6 +92,9 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
     val stepsHistory by viewModel.stepHistory.observeAsState(emptyList())
     val todayGoal by viewModel.todayGoal.observeAsState(0)
     val petState by viewModel.petState.observeAsState()
+    val reviveButton = viewModel.reviveButton
+
+    val stepToReviveLimit = viewModel.stepsToRevivalLimit
 
     val todayGoalReached = stepsHistory.any { it.date == LocalDate.now().toString() && it.goalReached }
     var canFeed = todayGoalReached && petState?.lastFedDate != LocalDate.now().toString()
@@ -178,20 +181,36 @@ fun StepScreen(viewModel: StepsViewModel, navController: NavHostController) {
                 Text("Goals")
             }
 
-            if (canFeed) {
+            if(petState?.currentStage == 4 && reviveButton==true){
                 Button(
                     onClick = {
-                        viewModel.viewModelScope.launch { viewModel.feedPet() }
-                        canFeed = false
+                        viewModel.wakeUpAnimal()
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) {
-                    Text("Feed Pet")
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                ){
+                    Text("Wake Up")
                 }
-            } else if (!todayGoalReached) {
-                Text("Reach your goal to feed the pet!", style = MaterialTheme.typography.bodyMedium)
-            } else {
-                Text("Pet already fed today!", style = MaterialTheme.typography.bodyMedium)
+            }else if(petState?.currentStage == 4){
+                Text("Reach ${stepToReviveLimit} steps to wake up your pet!", style = MaterialTheme.typography.bodyMedium)
+
+            }
+
+            if( petState?.currentStage!=4){
+                if (canFeed) {
+                    Button(
+                        onClick = {
+                            viewModel.viewModelScope.launch { viewModel.feedPet() }
+                            canFeed = false
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    ) {
+                        Text("Feed Pet")
+                    }
+                } else if (!todayGoalReached) {
+                    Text("Reach your goal to feed the pet!", style = MaterialTheme.typography.bodyMedium)
+                } else {
+                    Text("Pet already fed today!", style = MaterialTheme.typography.bodyMedium)
+                }
             }
         }
 

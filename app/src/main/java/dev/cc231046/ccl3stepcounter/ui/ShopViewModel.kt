@@ -46,7 +46,7 @@ class ShopViewModel (private val petDao: PetDao, private val ownedPetsDao: Owned
     suspend fun purchaseAnimal(animal: String) {
         val pet = petDao.getPet() ?: PetEntity() //gets how many coins the user has
 
-        if (pet.coins >= 50 && !ownedPetsDao.isPetOwned(animal)) {
+        if (pet.coins >= 20 && !ownedPetsDao.isPetOwned(animal)) {
             ownedPetsDao.insertOwnedPet(OwnedPetsEntity(animalName = animal, isSelected = true))
             petDao.insertOrUpdatePet(pet.copy(coins = pet.coins - 50))
             selectPet(animal)

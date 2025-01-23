@@ -52,15 +52,18 @@ fun CircularProgressWithPet(
             when (animalType) {
                 "dog" -> when (petState) {
                     2 -> R.drawable.dog_sleeping
+                    4 -> R.drawable.dog_sleeping
                     3 -> R.drawable.dog_workout
                     else -> R.drawable.dog_animation
                 }
                 "cat" -> when (petState) {
                     2 -> R.drawable.cat_sleeping
+                    4 -> R.drawable.cat_sleeping
                     3 -> R.drawable.cat_workout
                     else -> R.drawable.cat_animation
                 }"rabbit" -> when (petState) {
                     2 -> R.drawable.rabbit_sleeping
+                    4 -> R.drawable.rabbit_sleeping
                     3 -> R.drawable.rabbit_workout
                     else -> R.drawable.rabbit_animation
                 }
