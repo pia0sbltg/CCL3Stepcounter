@@ -235,6 +235,10 @@ We have:
 
 The dog is the default pet, the others can be unlocked by paying 20 coins
 
+<details>
+
+<summary>**Animations**</summary>
+
 ![Dog](assets/dog.GIF "dog")
 ![Dog Sleeping](assets/dogSleeping.GIF "dog sleeping")
 ![Dog Workout](assets/dogWorkout.GIF "dog workout")
@@ -246,5 +250,11 @@ The dog is the default pet, the others can be unlocked by paying 20 coins
 ![Rabbit](assets/rabbit.GIF "rabbit")
 ![Rabbit Sleeping](assets/rabbitSleeping.GIF "rabbit sleeping")
 ![Rabbit Workout](assets/rabbitWorkout.GIF "rabbit workout")
+
+
+</details>
+
+
+
 
 
