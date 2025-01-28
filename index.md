@@ -13,6 +13,8 @@ Movemate is a step tracker app designed to help people integrate more movement i
 
 [Test Results](#usability-test-results)
 
+[Final App](#final-app)
+
 
 ## QR Code & Link
 ![QR Code](assets/frame-2.png "QR Code")
@@ -48,11 +50,14 @@ While these apps provide excellent tracking features, Movemate goes beyond by in
 ### Gamification
 We plan to add gamification features to make Movemate more fun and interactive. Instead of just showing your step count in a standard UI, Movemate introduces a **virtual pet** that thrives based on your activity:
 
-- **Daily Goals:** Feed your virtual pet by hitting your daily step goal. Keep a streak of several days and you pet will become _buff_
+- **Daily Goals:** Feed your virtual pet by hitting your daily step goal.
 - **Earning Coins:** Reach your goals to earn coins, which can be used to unlock new pets and customize your experience.
 - **Long-Term Engagement:** This feature rewards consistent effort and makes staying active feel like a fun game instead of a chore.
 
 With these features, Movemate turns step tracking into an engaging, goal-oriented experience.
+
+
+
 
 # Heuristic Evaluation and Usability Test design
 
@@ -216,3 +221,30 @@ The goal of the user test is to uncover challenges for users and gather user fee
 Move Mate demonstrates strong usability with an above average SUS score of 76,56. There is definetely the possibility of a ceiling effect, since the SEQ scores where quite high. Since the app was made within two weeks and the app does not have the same amount of features as an app made by a big company. The tasks were quite easy, but we still got a lot of important insights and suggestions for improvement.
 
 ---
+
+
+
+# Final App
+
+## Animations
+These are the different animations we implemented into our app. 
+We have:
+- an idle animmation which plays whenever the user opens the app
+- a workout animation, which plays for four seconds after the user fed the pet
+- a sleeping animation, which plays when a user did not achieve their goal for several days, which puts the pet into a deep sleep and the user has to complete a certain step goal to wake it up again
+
+The dog is the default pet, the others can be unlocked by paying 20 coins
+
+![Dog](assets/dog.gif "dog")
+![Dog Sleeping](assets/dogSleeping.gif "dog sleeping")
+![Dog Workout](assets/dogWorkout.gif "dog workout")
+
+![Cat](assets/cat.gif "cat")
+![Cat Sleeping](assets/catSleeping.gif "cat sleeping")
+![Cat Workout](assets/catWorkout.gif "cat workout")
+
+![Rabbit](assets/rabbit.gif "rabbit")
+![Rabbit Sleeping](assets/rabbitSleeping.gif "rabbit sleeping")
+![Rabbit Workout](assets/rabbitWorkout.gif "rabbit workout")
+
+
