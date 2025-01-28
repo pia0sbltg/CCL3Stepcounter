@@ -15,6 +15,9 @@ Movemate is a step tracker app designed to help people integrate more movement i
 
 [Final App](#final-app)
 
+[Database Design](#database-design)
+
+[Reflection](#reflection)
 
 ## QR Code & Link
 ![QR Code](assets/frame-2.png "QR Code")
@@ -226,12 +229,34 @@ Move Mate demonstrates strong usability with an above average SUS score of 76,56
 
 # Final App
 
+## Screenshots
+The final app consits of four screens:
+1. Main Screen: Step info, step history, button to go to the step goals, shop button, info button
+     - Info Screen: Explaination for users on how the app works
+2. Shop Screen: Users can buy two new pets
+3. Goals Screen: Overrview of all the step goals, users can edit and delete them
+4. Add Goal Screen: Users can add new step goals, either for one day or all days
+
+<details>
+
+<summary>Screenshots</summary>
+
+![Main Screen](assets/MainScreen.png "Main Screen")
+![Info Screen](assets/InfoScreen.png "Info Screen")
+![Shop Screen](assets/ShopScreen.png "Shop Screen")
+![Goals Screen](assets/GoalScreen.png "Goal Screen")
+![Add Goal Screen](assets/AddGoal.png "Add Goal")
+    
+</details>
+
+
 ## Animations
-These are the different animations we implemented into our app. 
+These are the different animations we implemented into our app. They are frame by frame animated in "Pixquare" on the iPad. There are a total of 9 animations.
 We have:
 - an idle animmation which plays whenever the user opens the app
 - a workout animation, which plays for four seconds after the user fed the pet
 - a sleeping animation, which plays when a user did not achieve their goal for several days, which puts the pet into a deep sleep and the user has to complete a certain step goal to wake it up again
+
 
 The dog is the default pet, the others can be unlocked by paying 20 coins
 
@@ -248,6 +273,17 @@ The dog is the default pet, the others can be unlocked by paying 20 coins
 
 </details>
 
+
+
+# Database Design
+
+
+
+# Reflection
+
+## Antonia
+
+## Pia
 
 
 
