@@ -242,9 +242,13 @@ The final app consits of four screens:
 <summary>Screenshots</summary>
 
 ![Main Screen](assets/MainScreen.png "Main Screen")
+
 ![Info Screen](assets/InfoScreen.png "Info Screen")
+
 ![Shop Screen](assets/ShopScreen.png "Shop Screen")
+
 ![Goals Screen](assets/GoalScreen.png "Goal Screen")
+
 ![Add Goal Screen](assets/AddGoal.png "Add Goal")
     
 </details>
@@ -264,11 +268,26 @@ The dog is the default pet, the others can be unlocked by paying 20 coins
 
 <summary>Animations</summary>
 
-![Dog](assets/dog.GIF "dog") ![Dog Sleeping](assets/dogSleeping.GIF "dog sleeping") ![Dog Workout](assets/dogWorkout.GIF "dog workout")
+![Dog](assets/dog.GIF "dog") 
 
-![Cat](assets/cat.GIF "cat") ![Cat Sleeping](assets/catSleeping.GIF "cat sleeping") ![Cat Workout](assets/catWorkout.GIF "cat workout")
+![Dog Sleeping](assets/dogSleeping.GIF "dog sleeping") 
 
-![Rabbit](assets/rabbit.GIF "rabbit") ![Rabbit Sleeping](assets/rabbitSleeping.GIF "rabbit sleeping") ![Rabbit Workout](assets/rabbitWorkout.GIF "rabbit workout")
+![Dog Workout](assets/dogWorkout.GIF "dog workout")
+
+
+![Cat](assets/cat.GIF "cat") 
+
+![Cat Sleeping](assets/catSleeping.GIF "cat sleeping") 
+
+![Cat Workout](assets/catWorkout.GIF "cat workout")
+
+
+
+![Rabbit](assets/rabbit.GIF "rabbit") 
+
+![Rabbit Sleeping](assets/rabbitSleeping.GIF "rabbit sleeping") 
+
+![Rabbit Workout](assets/rabbitWorkout.GIF "rabbit workout")
 
 
 </details>
