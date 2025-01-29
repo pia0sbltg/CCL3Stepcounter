@@ -237,18 +237,11 @@ The final app consits of four screens:
 3. Goals Screen: Overrview of all the step goals, users can edit and delete them
 4. Add Goal Screen: Users can add new step goals, either for one day or all days
 
-
-![Main Screen](assets/MainScreen.png "Main Screen")
-
-![Info Screen](assets/InfoScreen.png "Info Screen")
-
-![Shop Screen](assets/ShopScreen.png "Shop Screen")
-
-![Goals Screen](assets/GoalScreen.png "Goal Screen")
-
-![Add Goal Screen](assets/AddGoal.png "Add Goal")
-    
-
+<img src="assets/MainScreen.png" alt="Main Screen" width="200"/>
+<img src="assets/InfoScreen.png" alt="Info Screen" width="200"/>
+<img src="assets/ShopScreen.png" alt="Shop Screen" width="200"/>
+<img src="assets/GoalScreen.png" alt="Goal Screen" width="200"/>
+<img src="assets/AddGoal.png" alt="Add Goal Screen" width="200"/>  
 
 
 ## Animations
@@ -280,8 +273,18 @@ The dog is the default pet, others can be unlocked by paying 20 coins
 ![Database Tables](assets/ERD_CCL.drawio.png "database table")
 
 # Reflection
+and a final reflection from each student of the team including challenges, what was the contribution of each member of the team, how the final app meets the initial concept, and what could be further improved if possible.
 
 ## Antonia
+Personally, I learned a lot during the CCL. I liked having a partner and although there can be disagreements, working with someone else was quite nice.
+
+One of the things I enjoyed most was trying something completely new to me: animating. I had really wanted to join the "2D Animation" course we have as an elective, but unfortunately, I didn’t get in. Since I didn’t have the chance to learn animation during the semester, it was quite a challenge to teach myself and make nine different animations. The first one, even though it was just an idle animation, took quite a long time to complete. However, with each animation I finished, I became faster and more efficient.
+
+Since we had already worked in a team before, we knew each other's strengths and weaknesses, which helped us divide the work effectively. I mainly focused on the frontend, including styling and the progress bar implementation, documentation, and the user test. Although I didn’t do as much programming, I wanted to contribute in other valuable ways to our project. I think the workload was quite evenly distributed between us. 
+
+In the final app, we wanted to improve upon the initial mockup, and in my opinion, we achieved that. We added quite a lot of gamification features, and the final app is quite fun to use, even though it is "just" a step tracker. 
+
+
 
 ## Pia
 
