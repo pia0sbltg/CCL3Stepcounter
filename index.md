@@ -259,31 +259,19 @@ We have:
 - a sleeping animation, which plays when a user did not achieve their goal for several days, which puts the pet into a deep sleep and the user has to complete a certain step goal to wake it up again
 
 
-The dog is the default pet, the others can be unlocked by paying 20 coins
+The dog is the default pet, others can be unlocked by paying 20 coins
 
 <img src="assets/dog.GIF" alt="Dog" width="200"/>
+<img src="assets/dogSleeping.GIF" alt="Dog Sleeping" width="200"/>
+<img src="assets/dogWorkout.GIF" alt="Dog Workout" width="200"/>
 
-![Dog Sleeping](assets/dogSleeping.GIF "dog sleeping") 
+<img src="assets/cat.GIF" alt="Cat" width="200"/>
+<img src="assets/catSleeping.GIF" alt="Cat Sleeping" width="200"/>
+<img src="assets/catWorkout.GIF" alt="Cat Workout" width="200"/>
 
-![Dog Workout](assets/dogWorkout.GIF "dog workout")
-
-
-![Cat](assets/cat.GIF "cat") 
-
-![Cat Sleeping](assets/catSleeping.GIF "cat sleeping") 
-
-![Cat Workout](assets/catWorkout.GIF "cat workout")
-
-
-
-![Rabbit](assets/rabbit.GIF "rabbit") 
-
-![Rabbit Sleeping](assets/rabbitSleeping.GIF "rabbit sleeping") 
-
-![Rabbit Workout](assets/rabbitWorkout.GIF "rabbit workout")
-
-
-
+<img src="assets/rabbit.GIF" alt="Rabbit" width="200"/>
+<img src="assets/rabbitSleeping.GIF" alt="Rabbit Sleeping" width="200"/>
+<img src="assets/rabbitWorkout.GIF" alt="Rabbit Workout" width="200"/>
 
 
 
