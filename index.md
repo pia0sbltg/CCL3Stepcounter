@@ -237,9 +237,6 @@ The final app consits of four screens:
 3. Goals Screen: Overrview of all the step goals, users can edit and delete them
 4. Add Goal Screen: Users can add new step goals, either for one day or all days
 
-<details>
-
-<summary>Screenshots</summary>
 
 ![Main Screen](assets/MainScreen.png "Main Screen")
 
@@ -251,7 +248,7 @@ The final app consits of four screens:
 
 ![Add Goal Screen](assets/AddGoal.png "Add Goal")
     
-</details>
+
 
 
 ## Animations
@@ -264,9 +261,7 @@ We have:
 
 The dog is the default pet, the others can be unlocked by paying 20 coins
 
-<details>
 
-<summary>Animations</summary>
 
 ![Dog](assets/dog.GIF "dog") 
 
@@ -290,13 +285,13 @@ The dog is the default pet, the others can be unlocked by paying 20 coins
 ![Rabbit Workout](assets/rabbitWorkout.GIF "rabbit workout")
 
 
-</details>
+
 
 
 
 # Database Design
 
-
+![Database Tables](assets/ERD_CCL.drawio.png "database table")
 
 # Reflection
 
