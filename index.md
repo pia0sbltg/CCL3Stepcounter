@@ -287,6 +287,11 @@ In the final app, we wanted to improve upon the initial mockup, and in my opinio
 
 
 ## Pia
+I would say that this CCL was the best one yet, as I felt like I could apply the new skills I learned during the semester (particularly Kotlin) in a meaningful way. Additionally, having a partner to work with made the Code Lab significantly less stressful and easier to manage. Since my favourite part of any project is always the coding, I was grateful to have a partner who would take care of the styling and other UI-related issues.
+
+During this CCL I learned a lot about different Android versions and how devices that technically use the same operating system can still exhibit major differences. For example, my Samsung phone wouldn´t allow tracking the steps in the background while the app was closed, as this violated certain privacy regulations. Challenges like this forced me to rethink certain approaches multiple times and encouraged me to try various solutions for. 
+
+In the end, I would say that I am quite happy with how our app turned out. While a few minor flaws and occasional errors remain, I think that we achieved everything we wanted to do in these two weeks. 
 
 
 
