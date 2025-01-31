@@ -1,5 +1,7 @@
 package dev.cc231046.ccl3stepcounter.ui.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 // Light Theme Colors
@@ -9,7 +11,10 @@ val LightPrimary = Color(0xFF9BD4E6)
 val LightSecondary = Color(0xFFA0E69B )
 val LightAccent = Color(0xFF8360E6)
 
-val Container = Color(0xFFD9F5D4)
+val Container: Color
+    @Composable
+    get() = if (isSystemInDarkTheme()) DarkSecondary else Color(0xFFD9F5D4)
+
 
 val GrayLight = Color(0xFFE1F1DF)
 
@@ -18,4 +23,4 @@ val DarkText = Color(0xFFF1FCE9)
 val DarkBackground = Color(0xFF010401)
 val DarkPrimary = Color(0xFFA3DB8F)
 val DarkSecondary = Color(0xFF265E4E)
-val DarkAccent = Color(0xFF70BEC5)
+val DarkAccent = Color(0xFF8360E6)

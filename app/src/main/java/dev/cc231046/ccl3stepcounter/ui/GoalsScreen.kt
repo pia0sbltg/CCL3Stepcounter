@@ -1,5 +1,6 @@
 package dev.cc231046.ccl3stepcounter.ui
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -129,7 +130,7 @@ fun GoalItem(goal: GoalEntity, onDeleteClick: () -> Unit, onSaveClick: (GoalEnti
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Container,
+            containerColor = if ( isSystemInDarkTheme()) DarkSecondary else Container,
             contentColor = MaterialTheme.colorScheme.onBackground
         )
     ) {
@@ -185,7 +186,7 @@ fun GoalItem(goal: GoalEntity, onDeleteClick: () -> Unit, onSaveClick: (GoalEnti
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = "Save Goal",
-                        tint = MaterialTheme.colorScheme.onSecondary
+                        tint = if (isSystemInDarkTheme()) DarkPrimary else MaterialTheme.colorScheme.onSecondary
                     )
                 }
             } else {

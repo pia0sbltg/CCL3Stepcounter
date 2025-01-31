@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
        // startActivity(intent)
 
 
-        scheduleStepTrackingJob(this)
+       // scheduleStepTrackingJob(this)
 
         val database = StepsDatabase.getDatabase(applicationContext)
         val stepsDao = database.stepsDao()
