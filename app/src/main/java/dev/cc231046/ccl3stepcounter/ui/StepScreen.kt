@@ -344,7 +344,7 @@ fun StepHistoryItem(stepEntity: StepEntity, goalForDay: Int?) {
                         bottom = size.height
                     ) {
                         drawCircle(
-                            color = Color.Green,
+                            color = secondaryColor,
                             radius = circleRadius,
                             center = center
                         )
