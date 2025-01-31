@@ -20,9 +20,9 @@ Movemate is a step tracker app designed to help people integrate more movement i
 [Reflection](#reflection)
 
 ## QR Code & Link
-![QR Code](assets/frame-2.png "QR Code")
+![QR Code](assets/frame.png "QR Code")
 
-[Download Link](https://we.tl/t-0g0exgcNaF)
+[Download Link](https://drive.google.com/file/d/1zLs3KQvlVygRLGi2BTdA293LP0BwzW41/view?usp=drive_link)
 
 # App Concept
 
